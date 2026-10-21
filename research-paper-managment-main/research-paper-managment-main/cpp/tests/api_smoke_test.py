@@ -6,10 +6,11 @@ with socket.socket() as s:
 fd,db=tempfile.mkstemp(prefix="rpms_api_",suffix=".sqlite3");os.close(fd);os.unlink(db)
 env=os.environ.copy();env["RPMS_PORT"]=str(port)
 proc=None
-def req(method,path,body=None,token=None,expected=None):
+def req(method,path,body=None,token=None,expected=None,origin=None):
  data=None if body is None else json.dumps(body).encode()
  headers={"Content-Type":"application/json"}
  if token: headers["Authorization"]="Bearer "+token
+ if origin: headers["Origin"]=origin
  request=urllib.request.Request(f"http://127.0.0.1:{port}{path}",data=data,headers=headers,method=method)
  try:
   with urllib.request.urlopen(request,timeout=3) as r: status,payload=r.status,r.read().decode()
@@ -26,6 +27,9 @@ try:
   except (urllib.error.URLError,TimeoutError,ConnectionError):time.sleep(.25)
  else:raise RuntimeError("server did not become ready")
  assert health["status"]=="ok"
+ req("GET","/health",expected=200,origin="http://localhost:5500")
+ req("GET","/health",expected=403,origin="https://untrusted.example")
+ req("POST","/api/register",{"name":"A","email":"bad","password":"short","role":"Student"},expected=400)
  req("POST","/api/papers",{"title":"No auth","category":"Computer Networks"},expected=401)
  req("POST","/api/register",{"name":"Test Student","email":"student@example.test","password":"correct-horse-123","role":"Student"},expected=201)
  req("POST","/api/register",{"name":"Admin Try","email":"admin2@example.test","password":"correct-horse-123","role":"Admin"},expected=403)
@@ -34,9 +38,11 @@ try:
  st=student["token"];assert student["user"]["role"]=="Student"
  req("POST","/api/login",{"email":"student@example.test","password":"bad-password"},expected=401)
  _,cats=req("GET","/api/categories",expected=200);assert "Computer Networks" in cats["categories"]
+ req("POST","/api/papers",{"title":"Bad Category","category":"Does Not Exist"},st,400)
  _,created=req("POST","/api/papers",{"title":"API Test Paper","abstract":"Integration test","category":"Computer Networks","publicationYear":2026},st,201)
  paper=created["paper"];pid=paper["id"];assert paper["title"]=="API Test Paper" and paper["status"]=="Pending"
  req("POST",f"/api/papers/{pid}/reviews",{"decision":"Approved","comments":"forbidden"},st,403)
+ req("GET",f"/api/papers/{pid}/reviews",token=st,expected=403)
  req("PATCH",f"/api/papers/{pid}/status",{"status":"Approved"},st,403)
  _,faculty=req("POST","/api/login",{"email":"faculty@example.test","password":"faculty-test-pass-123"},expected=200)
  ft=faculty["token"]
