@@ -366,6 +366,10 @@ bool Database::renameCategory(const std::string& oldName, const std::string& new
 }
 bool Database::deleteCategory(const std::string& name) {
     if (name.empty()) return false;
+    Statement used(db_, "SELECT COUNT(*) FROM papers WHERE category=? COLLATE NOCASE;");
+    used.text(1, name);
+    if (sqlite3_step(used.get()) != SQLITE_ROW) throw std::runtime_error(sqlite3_errmsg(db_));
+    if (sqlite3_column_int(used.get(), 0) > 0) return false;
     Statement s(db_, "DELETE FROM categories WHERE name=? COLLATE NOCASE;");
     s.text(1, name);
     if (!s.stepDone()) return false;
