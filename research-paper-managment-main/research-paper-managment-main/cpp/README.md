@@ -30,6 +30,8 @@ Use the same database path as the server. Keep the database file private and pro
 - `POST /api/login`: `email,password` (returns `token,user`)
 - `POST /api/logout`: Bearer token
 - `GET /api/categories`
+- `PATCH /api/profile`: authenticated user updates their own profile
+- `POST /api/admin/reset`: Admin only; resets papers, reviews, categories, and activity while retaining accounts
 - `GET /api/admin/users`: Admin only
 - `DELETE /api/admin/users/{id}`: Admin only; deletes the account, its authored papers, and its reviews
 - `GET /api/researchers`: public active Student/Faculty directory
@@ -42,13 +44,13 @@ Use the same database path as the server. Keep the database file private and pro
 - `GET /api/activity`: authenticated; latest 40 events
 - `POST /api/activity`: authenticated; `text,type`
 - `GET /api/papers`
-- `POST /api/papers`: Bearer token; `title,abstract,category,doi,publicationYear,venue,paperType`
+- `POST /api/papers`: Bearer token; title/abstract/category plus keywords, authors, methodology, technologies, and file metadata
 - `PATCH /api/papers/{id}`: owner or Admin; updates paper metadata
 - `PATCH /api/papers/{id}/status`: Admin only; `status`
 - `GET /api/papers/{id}/reviews`: Faculty/Admin only
 - `POST /api/papers/{id}/reviews`: Faculty/Admin only; `decision,comments`
 
-Errors return JSON with an `error` field. The CTest HTTP integration test seeds Faculty/Admin users using a separate test-only executable; those credentials are not provisioned by the production API.
+Errors return JSON with an `error` field. The CI workflow runs CMake/database tests, frontend contract checks, HTTP integration tests, and Playwright browser tests for Student registration/login, paper submission, Faculty review, and Admin user listing. The CTest HTTP integration test seeds Faculty/Admin users using a separate test-only executable; those credentials are not provisioned by the production API.
 
 ## Known gaps
 The CI workflow now includes C++ build/database tests, frontend contract checks, HTTP API integration tests, and Playwright browser end-to-end tests. Tokens are in-memory and reset when the server restarts. The service is bound to loopback for development. Before production, add HTTPS termination, rate limiting, durable/revocable sessions, approved Faculty/Admin provisioning, comprehensive audit logs, and deployment hardening.
