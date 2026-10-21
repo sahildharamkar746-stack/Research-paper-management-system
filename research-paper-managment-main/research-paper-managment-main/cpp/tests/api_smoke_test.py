@@ -60,6 +60,8 @@ try:
  req("GET","/api/admin/users",token=st,expected=403)
  _,users=req("GET","/api/admin/users",token=at,expected=200)
  assert any(u["email"]=="student@example.test" for u in users["users"])
+ faculty_id=next(u["id"] for u in users["users"] if u["email"]=="faculty@example.test")
+ admin_id=next(u["id"] for u in users["users"] if u["email"]=="admin@example.test")
  req("POST","/api/categories",{"name":"Forbidden Category"},st,403)
  req("POST","/api/categories",{"name":"Temporary Category"},at,201)
  req("PATCH","/api/categories",{"oldName":"Temporary Category","newName":"Renamed Category"},at,200)
@@ -71,9 +73,9 @@ try:
  req("POST","/api/papers",{"title":"After logout","category":"Computer Networks"},st,401)
  _,listing=req("GET","/api/papers",expected=200)
  assert len(listing["papers"])==1 and listing["papers"][0]["status"]=="Rejected"
- req("PATCH","/api/admin/users/2/status",{"status":"Disabled"},at,200)
+ req("PATCH",f"/api/admin/users/{faculty_id}/status",{"status":"Disabled"},at,200)
  req("GET","/api/reviews",token=ft,expected=401)
- req("PATCH","/api/admin/users/1/status",{"status":"Disabled"},at,400)
+ req("PATCH",f"/api/admin/users/{admin_id}/status",{"status":"Disabled"},at,400)
  req("DELETE",f"/api/papers/{pid}",token=at,expected=200)
  _,empty=req("GET","/api/papers",expected=200)
  assert empty["papers"]==[]
