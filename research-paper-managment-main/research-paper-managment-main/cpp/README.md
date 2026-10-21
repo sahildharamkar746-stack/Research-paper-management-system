@@ -13,6 +13,17 @@ ctest --test-dir build --output-on-failure
 ```
 Run `./build/rpms_server [path-to-database]`. The server binds to `127.0.0.1:8080`; set `RPMS_PORT` to change the port.
 
+## Provision Faculty/Admin accounts
+
+Public registration intentionally creates Student accounts only. After building, run the account-provisioning utility to create Faculty or Admin accounts. It prompts for a password and suppresses terminal echo where supported:
+
+\`\`\`sh
+./build/rpms_create_user rpms.sqlite3 "Reviewer Name" reviewer@example.edu Faculty
+./build/rpms_create_user rpms.sqlite3 "Administrator" admin@example.edu Admin
+\`\`\`
+
+Use the same database path as the server. Keep the database file private and provision accounts only for trusted users.
+
 ## Endpoints
 - `GET /health`
 - `POST /api/register`: `name,email,password,role` (role must be Student)
