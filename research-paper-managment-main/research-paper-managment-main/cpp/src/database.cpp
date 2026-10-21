@@ -98,6 +98,12 @@ void Database::initialize() {
             "paper_type TEXT NOT NULL DEFAULT 'Research Paper', status TEXT NOT NULL DEFAULT 'Pending',"
             "author_user_id INTEGER NOT NULL REFERENCES users(id),"
             "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);");
+    ensureColumn("ALTER TABLE papers ADD COLUMN keywords TEXT NOT NULL DEFAULT '';");
+    ensureColumn("ALTER TABLE papers ADD COLUMN methodology TEXT NOT NULL DEFAULT '';");
+    ensureColumn("ALTER TABLE papers ADD COLUMN technologies_used TEXT NOT NULL DEFAULT '';");
+    ensureColumn("ALTER TABLE papers ADD COLUMN authors_json TEXT NOT NULL DEFAULT '[]';");
+    ensureColumn("ALTER TABLE papers ADD COLUMN file_name TEXT NOT NULL DEFAULT '';");
+    ensureColumn("ALTER TABLE papers ADD COLUMN file_size TEXT NOT NULL DEFAULT '';");
     execute("CREATE TABLE IF NOT EXISTS reviews ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, paper_id INTEGER NOT NULL REFERENCES papers(id) ON DELETE CASCADE,"
             "reviewer_id INTEGER NOT NULL REFERENCES users(id), decision TEXT NOT NULL,"
@@ -237,31 +243,36 @@ bool Database::updateUserStatus(int userId, const std::string& status) {
 
 bool Database::createPaper(const Paper& p, int authorUserId) {
     if (p.title.empty() || p.category.empty() || authorUserId <= 0) return false;
-    Statement s(db_, "INSERT INTO papers(title,abstract,category,doi,publication_year,venue,paper_type,author_user_id) VALUES(?,?,?,?,?,?,?,?);");
-    s.text(1,p.title); s.text(2,p.abstractText); s.text(3,p.category); s.text(4,p.doi);
-    s.integer(5,p.publicationYear); s.text(6,p.venue);
-    s.text(7,p.paperType.empty() ? "Research Paper" : p.paperType); s.integer(8,authorUserId);
+    Statement s(db_, "INSERT INTO papers(title,abstract,keywords,category,doi,publication_year,venue,paper_type,methodology,technologies_used,authors_json,file_name,file_size,author_user_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
+    s.text(1,p.title); s.text(2,p.abstractText); s.text(3,p.keywords); s.text(4,p.category); s.text(5,p.doi);
+    s.integer(6,p.publicationYear); s.text(7,p.venue); s.text(8,p.paperType.empty() ? "Research Paper" : p.paperType);
+    s.text(9,p.methodology); s.text(10,p.technologiesUsed); s.text(11,p.authorsJson.empty() ? "[]" : p.authorsJson);
+    s.text(12,p.fileName); s.text(13,p.fileSize); s.integer(14,authorUserId);
     return s.stepDone();
 }
 std::vector<Paper> Database::listPapers() const {
-    Statement s(db_, "SELECT p.id,p.title,p.abstract,p.category,p.doi,p.publication_year,p.venue,p.paper_type,p.status,u.email FROM papers p JOIN users u ON u.id=p.author_user_id ORDER BY p.id DESC;");
+    Statement s(db_, "SELECT p.id,p.title,p.abstract,p.keywords,p.category,p.doi,p.publication_year,p.venue,p.paper_type,p.methodology,p.technologies_used,p.authors_json,p.file_name,p.file_size,p.status,u.email,p.created_at FROM papers p JOIN users u ON u.id=p.author_user_id ORDER BY p.id DESC;");
     std::vector<Paper> result;
     while (sqlite3_step(s.get()) == SQLITE_ROW) {
         Paper p;
         p.id=sqlite3_column_int(s.get(),0); p.title=columnText(s.get(),1);
-        p.abstractText=columnText(s.get(),2); p.category=columnText(s.get(),3);
-        p.doi=columnText(s.get(),4); p.publicationYear=sqlite3_column_int(s.get(),5);
-        p.venue=columnText(s.get(),6); p.paperType=columnText(s.get(),7);
-        p.status=columnText(s.get(),8); p.authorEmail=columnText(s.get(),9);
+        p.abstractText=columnText(s.get(),2); p.keywords=columnText(s.get(),3); p.category=columnText(s.get(),4);
+        p.doi=columnText(s.get(),5); p.publicationYear=sqlite3_column_int(s.get(),6);
+        p.venue=columnText(s.get(),7); p.paperType=columnText(s.get(),8);
+        p.methodology=columnText(s.get(),9); p.technologiesUsed=columnText(s.get(),10);
+        p.authorsJson=columnText(s.get(),11); p.fileName=columnText(s.get(),12); p.fileSize=columnText(s.get(),13);
+        p.status=columnText(s.get(),14); p.authorEmail=columnText(s.get(),15); p.createdAt=columnText(s.get(),16);
         result.push_back(std::move(p));
     }
     return result;
 }
 bool Database::updatePaper(const Paper& p) {
     if (p.id <= 0 || p.title.empty() || p.category.empty()) return false;
-    Statement s(db_, "UPDATE papers SET title=?,abstract=?,category=?,doi=?,publication_year=?,venue=?,paper_type=? WHERE id=?;");
-    s.text(1,p.title); s.text(2,p.abstractText); s.text(3,p.category); s.text(4,p.doi);
-    s.integer(5,p.publicationYear); s.text(6,p.venue); s.text(7,p.paperType); s.integer(8,p.id);
+    Statement s(db_, "UPDATE papers SET title=?,abstract=?,keywords=?,category=?,doi=?,publication_year=?,venue=?,paper_type=?,methodology=?,technologies_used=?,authors_json=?,file_name=?,file_size=? WHERE id=?;");
+    s.text(1,p.title); s.text(2,p.abstractText); s.text(3,p.keywords); s.text(4,p.category); s.text(5,p.doi);
+    s.integer(6,p.publicationYear); s.text(7,p.venue); s.text(8,p.paperType); s.text(9,p.methodology);
+    s.text(10,p.technologiesUsed); s.text(11,p.authorsJson.empty() ? "[]" : p.authorsJson);
+    s.text(12,p.fileName); s.text(13,p.fileSize); s.integer(14,p.id);
     if (!s.stepDone()) return false;
     return sqlite3_changes(db_) > 0;
 }

@@ -23,6 +23,7 @@ struct Paper {
     int id{};
     std::string title;
     std::string abstractText;
+    std::string keywords;
     std::string category;
     std::string doi;
     int publicationYear{};
