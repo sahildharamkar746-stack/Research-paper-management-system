@@ -16,6 +16,8 @@ target_link_libraries(rpms_core PUBLIC SQLite::SQLite3 OpenSSL::Crypto)
 target_compile_options(rpms_core PRIVATE
   $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic -Wconversion>
   $<$<CXX_COMPILER_ID:MSVC>:/W4>)
+add_executable(rpms_create_user tools/create_user.cpp)
+target_link_libraries(rpms_create_user PRIVATE rpms_core)
 add_executable(rpms_server src/main.cpp)
 target_link_libraries(rpms_server PRIVATE rpms_core httplib::httplib nlohmann_json::nlohmann_json Threads::Threads)
 include(CTest)
