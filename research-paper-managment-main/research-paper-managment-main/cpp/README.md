@@ -20,6 +20,8 @@ Run `./build/rpms_server [path-to-database]`. The server binds to `127.0.0.1:808
 - `POST /api/logout`: Bearer token
 - `GET /api/categories`
 - `GET /api/admin/users`: Admin only
+- `DELETE /api/admin/users/{id}`: Admin only; deletes the account, its authored papers, and its reviews
+- `GET /api/researchers`: public active Student/Faculty directory
 - `PATCH /api/admin/users/{id}/status`: Admin only; `status` is `Active` or `Disabled`
 - `POST /api/categories`: Admin only; `name`
 - `PATCH /api/categories`: Admin only; `oldName,newName`
@@ -28,6 +30,7 @@ Run `./build/rpms_server [path-to-database]`. The server binds to `127.0.0.1:808
 - `GET /api/reviews`: Faculty/Admin only
 - `GET /api/papers`
 - `POST /api/papers`: Bearer token; `title,abstract,category,doi,publicationYear,venue,paperType`
+- `PATCH /api/papers/{id}`: owner or Admin; updates paper metadata
 - `PATCH /api/papers/{id}/status`: Admin only; `status`
 - `GET /api/papers/{id}/reviews`: Faculty/Admin only
 - `POST /api/papers/{id}/reviews`: Faculty/Admin only; `decision,comments`

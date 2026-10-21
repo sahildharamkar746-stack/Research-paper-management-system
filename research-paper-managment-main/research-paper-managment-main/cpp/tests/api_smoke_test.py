@@ -44,6 +44,8 @@ try:
  req("POST","/api/papers",{"title":"Bad Category","category":"Does Not Exist"},st,400)
  _,created=req("POST","/api/papers",{"title":"API Test Paper","abstract":"Integration test","category":"Computer Networks","publicationYear":2026},st,201)
  paper=created["paper"];pid=paper["id"];assert paper["title"]=="API Test Paper" and paper["status"]=="Pending"
+ req("PATCH",f"/api/papers/{pid}",{"title":"Updated API Test Paper","abstract":"Updated integration test","category":"Computer Networks"},st,200)
+ req("GET","/api/researchers",expected=200)
  req("POST",f"/api/papers/{pid}/reviews",{"decision":"Approved","comments":"forbidden"},st,403)
  req("GET",f"/api/papers/{pid}/reviews",token=st,expected=403)
  req("PATCH",f"/api/papers/{pid}/status",{"status":"Approved"},st,403)
@@ -60,6 +62,7 @@ try:
  req("GET","/api/admin/users",token=st,expected=403)
  _,users=req("GET","/api/admin/users",token=at,expected=200)
  assert any(u["email"]=="student@example.test" for u in users["users"])
+ student_id=next(u["id"] for u in users["users"] if u["email"]=="student@example.test")
  req("POST","/api/categories",{"name":"Forbidden Category"},st,403)
  req("POST","/api/categories",{"name":"Temporary Category"},at,201)
  req("PATCH","/api/categories",{"oldName":"Temporary Category","newName":"Renamed Category"},at,200)
@@ -77,6 +80,9 @@ try:
  req("DELETE",f"/api/papers/{pid}",token=at,expected=200)
  _,empty=req("GET","/api/papers",expected=200)
  assert empty["papers"]==[]
+ req("DELETE",f"/api/admin/users/{admin_id}",token=at,expected=400)
+ req("DELETE",f"/api/admin/users/{student_id}",token=at,expected=200)
+ req("POST","/api/login",{"email":"student@example.test","password":"correct-horse-123"},expected=401)
  print("HTTP API smoke tests passed.")
 finally:
  if proc:

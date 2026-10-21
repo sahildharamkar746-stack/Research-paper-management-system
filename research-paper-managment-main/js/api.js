@@ -34,8 +34,6 @@
     listPapers: () => request('/api/papers'),
     listCategories: () => request('/api/categories'),
     listUsers: () => request('/api/admin/users'),
-    listResearchers: () => request('/api/researchers'),
-    deleteUser: (id) => request('/api/admin/users/' + encodeURIComponent(id), { method: 'DELETE' }),
     updateUserStatus: (id, status) => request('/api/admin/users/' + encodeURIComponent(id) + '/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
     addCategory: (name) => request('/api/categories', { method: 'POST', body: JSON.stringify({ name }) }),
     renameCategory: (oldName, newName) => request('/api/categories', { method: 'PATCH', body: JSON.stringify({ oldName, newName }) }),
@@ -43,8 +41,6 @@
     deletePaper: (id) => request('/api/papers/' + encodeURIComponent(id), { method: 'DELETE' }),
     updatePaperStatus: (id, status) => request('/api/papers/' + encodeURIComponent(id) + '/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
     listReviews: () => request('/api/reviews'),
-    submitPaper: (paper) => request('/api/papers', { method: 'POST', body: JSON.stringify(paper) }),
-    updatePaper: (id, paper) => request('/api/papers/' + encodeURIComponent(id), { method: 'PATCH', body: JSON.stringify(paper) }),
-    submitReview: (id, decision, comments) => request('/api/papers/' + encodeURIComponent(id) + '/reviews', { method: 'POST', body: JSON.stringify({ decision, comments }) })
+    submitPaper: (paper) => request('/api/papers', { method: 'POST', body: JSON.stringify(paper) })
   });
 })();
