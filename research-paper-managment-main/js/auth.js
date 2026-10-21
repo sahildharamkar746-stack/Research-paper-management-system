@@ -45,6 +45,7 @@ async function login(email, password) {
     const result = await rpmsApi.login(cleanEmail, password);
     localStorage.setItem('rpms_api_token', result.token);
     setCurrentUser(result.user);
+    await addActivity(result.user.name + ' (' + result.user.role + ') logged in.', 'auth');
     return { success: true, message: 'Login successful. Redirecting...', user: result.user };
   } catch (error) {
     return { success: false, message: error.message || 'Unable to contact the RPMS server.' };
@@ -77,6 +78,8 @@ async function register(details) {
  * Logs out the current user session and redirects to login page.
  */
 async function logout() {
+  const user = getCurrentUser();
+  if (user) await addActivity(user.name + ' logged out.', 'auth');
   try { if (window.rpmsApi) await rpmsApi.logout(); } catch (error) { console.warn('Server logout failed:', error.message); }
   localStorage.removeItem('rpms_api_token');
   localStorage.removeItem('rpms_current_user');
