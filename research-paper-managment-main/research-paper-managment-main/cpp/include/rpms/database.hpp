@@ -51,8 +51,10 @@ public:
                       User& outUser) const;
     std::vector<User> listUsers() const;
     bool updateUserStatus(int userId, const std::string& status);
+    bool deleteUser(int userId);
     bool createPaper(const Paper& paper, int authorUserId);
     std::vector<Paper> listPapers() const;
+    bool updatePaper(const Paper& paper);
     bool updatePaperStatus(int paperId, const std::string& status);
     bool deletePaper(int paperId);
     bool addReview(int paperId, int reviewerId, const std::string& decision,

@@ -171,6 +171,27 @@ std::vector<User> Database::listUsers() const {
     }
     return result;
 }
+bool Database::deleteUser(int userId) {
+    if (userId <= 0) return false;
+    execute("BEGIN;");
+    try {
+        Statement reviews(db_, "DELETE FROM reviews WHERE reviewer_id=?;");
+        reviews.integer(1, userId);
+        if (!reviews.stepDone()) throw std::runtime_error(sqlite3_errmsg(db_));
+        Statement papers(db_, "DELETE FROM papers WHERE author_user_id=?;");
+        papers.integer(1, userId);
+        if (!papers.stepDone()) throw std::runtime_error(sqlite3_errmsg(db_));
+        Statement user(db_, "DELETE FROM users WHERE id=?;");
+        user.integer(1, userId);
+        if (!user.stepDone()) throw std::runtime_error(sqlite3_errmsg(db_));
+        const bool deleted = sqlite3_changes(db_) > 0;
+        execute("COMMIT;");
+        return deleted;
+    } catch (...) {
+        execute("ROLLBACK;");
+        throw;
+    }
+}
 bool Database::updateUserStatus(int userId, const std::string& status) {
     if (userId <= 0 || (status != "Active" && status != "Disabled")) return false;
     Statement s(db_, "UPDATE users SET status=? WHERE id=?;");
@@ -200,6 +221,14 @@ std::vector<Paper> Database::listPapers() const {
         result.push_back(std::move(p));
     }
     return result;
+}
+bool Database::updatePaper(const Paper& p) {
+    if (p.id <= 0 || p.title.empty() || p.category.empty()) return false;
+    Statement s(db_, "UPDATE papers SET title=?,abstract=?,category=?,doi=?,publication_year=?,venue=?,paper_type=? WHERE id=?;");
+    s.text(1,p.title); s.text(2,p.abstractText); s.text(3,p.category); s.text(4,p.doi);
+    s.integer(5,p.publicationYear); s.text(6,p.venue); s.text(7,p.paperType); s.integer(8,p.id);
+    if (!s.stepDone()) return false;
+    return sqlite3_changes(db_) > 0;
 }
 bool Database::updatePaperStatus(int paperId, const std::string& status) {
     if (!allowedStatus(status) || paperId <= 0) return false;
