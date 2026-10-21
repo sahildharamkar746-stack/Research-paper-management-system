@@ -87,6 +87,8 @@ try {
   let response = await fetch(apiUrl + '/api/papers');
   let payload = await response.json();
   if (!payload.papers.some(p => p.title === 'Browser E2E Research Paper')) throw new Error('Submitted paper was not persisted by the C++ API.');
+  const savedBrowserPaper = payload.papers.find(p => p.title === 'Browser E2E Research Paper');
+  if (!Array.isArray(savedBrowserPaper.authors) || !savedBrowserPaper.authors.some(a => a.email === 'student-e2e@example.test')) throw new Error('Paper authors were not persisted by the C++ API.');
 
   await logout(page);
   await login(page, 'faculty-e2e@example.test', 'faculty-e2e-pass-123');

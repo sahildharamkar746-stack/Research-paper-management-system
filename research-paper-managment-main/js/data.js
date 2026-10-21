@@ -306,14 +306,14 @@ const DEFAULT_ACTIVITIES = [
 function normalizeApiPaper(p) {
   const email = p.authorEmail || '';
   const authorName = email.includes('@') ? email.split('@')[0].replace(/[._-]/g, ' ') : 'Researcher';
+  const authors = Array.isArray(p.authors) && p.authors.length ? p.authors : [{ name: authorName, institution: '', email }];
   return {
-    id: String(p.id), title: p.title || '', abstract: p.abstract || '', keywords: '',
+    id: String(p.id), title: p.title || '', abstract: p.abstract || '', keywords: p.keywords || '',
     category: p.category || '', publicationYear: String(p.publicationYear || ''),
     doi: p.doi || '', journalConference: p.venue || '', publicationType: p.paperType || 'Research Paper',
-    methodology: '', technologiesUsed: '',
-    authors: [{ name: authorName, institution: '', email }],
-    fileName: '', fileSize: '', status: p.status || 'Pending', submittedBy: email,
-    submissionDate: new Date().toISOString().split('T')[0], feedback: '', reviewedBy: '', reviewedDate: ''
+    methodology: p.methodology || '', technologiesUsed: p.technologiesUsed || '',
+    authors, fileName: p.fileName || '', fileSize: p.fileSize || '', status: p.status || 'Pending', submittedBy: email,
+    submissionDate: (p.createdAt || new Date().toISOString()).split(/[ T]/)[0], feedback: '', reviewedBy: '', reviewedDate: ''
   };
 }
 async function hydrateApiCache() {
@@ -467,9 +467,9 @@ function getPaperById(id) {
 
 async function savePaper(paper) {
   if (window.rpmsApi) {
-    const saved = await rpmsApi.submitPaper({ title: paper.title, abstract: paper.abstract || '', category: paper.category,
-      doi: paper.doi || '', publicationYear: Number(paper.publicationYear) || 0,
-      venue: paper.journalConference || '', paperType: paper.publicationType || 'Research Paper' });
+    const saved = await rpmsApi.submitPaper({ title: paper.title, abstract: paper.abstract || '', keywords: paper.keywords || '', category: paper.category,
+      doi: paper.doi || '', publicationYear: Number(paper.publicationYear) || 0, venue: paper.journalConference || '', paperType: paper.publicationType || 'Research Paper',
+      methodology: paper.methodology || '', technologiesUsed: paper.technologiesUsed || '', authors: Array.isArray(paper.authors) ? paper.authors : [], fileName: paper.fileName || '', fileSize: paper.fileSize || '' });
     await refreshPapersFromApi();
     return getPaperById(String(saved.paper.id)) || normalizeApiPaper(saved.paper);
   }
@@ -489,9 +489,10 @@ async function updatePaper(updatedPaper) {
     if (previous.status !== updatedPaper.status && previous.title === updatedPaper.title && previous.category === updatedPaper.category) {
       await rpmsApi.updatePaperStatus(updatedPaper.id, updatedPaper.status);
     } else {
-      await rpmsApi.updatePaper(updatedPaper.id, { title: updatedPaper.title, abstract: updatedPaper.abstract || '',
+      await rpmsApi.updatePaper(updatedPaper.id, { title: updatedPaper.title, abstract: updatedPaper.abstract || '', keywords: updatedPaper.keywords || '',
         category: updatedPaper.category, doi: updatedPaper.doi || '', publicationYear: Number(updatedPaper.publicationYear) || 0,
-        venue: updatedPaper.journalConference || '', paperType: updatedPaper.publicationType || 'Research Paper' });
+        venue: updatedPaper.journalConference || '', paperType: updatedPaper.publicationType || 'Research Paper', methodology: updatedPaper.methodology || '',
+        technologiesUsed: updatedPaper.technologiesUsed || '', authors: Array.isArray(updatedPaper.authors) ? updatedPaper.authors : [], fileName: updatedPaper.fileName || '', fileSize: updatedPaper.fileSize || '' });
     }
     await refreshPapersFromApi();
     return getPaperById(String(updatedPaper.id));

@@ -29,8 +29,14 @@ struct Paper {
     int publicationYear{};
     std::string venue;
     std::string paperType;
+    std::string methodology;
+    std::string technologiesUsed;
+    std::string authorsJson{"[]"};
+    std::string fileName;
+    std::string fileSize;
     std::string status;
     std::string authorEmail;
+    std::string createdAt;
 };
 
 struct Review {

@@ -51,8 +51,9 @@ try:
  assert relogin["user"]["name"]=="Updated Student" and relogin["user"]["interests"]=="AI, Networks"
  _,cats=req("GET","/api/categories",expected=200);assert "Computer Networks" in cats["categories"]
  req("POST","/api/papers",{"title":"Bad Category","category":"Does Not Exist"},st,400)
- _,created=req("POST","/api/papers",{"title":"API Test Paper","abstract":"Integration test","category":"Computer Networks","publicationYear":2026},st,201)
+ _,created=req("POST","/api/papers",{"title":"API Test Paper","abstract":"Integration test","keywords":"api, testing","category":"Computer Networks","publicationYear":2026,"methodology":"automated","technologiesUsed":"C++","authors":[{"name":"Test Student","email":"student@example.test","institution":"Test University"}],"fileName":"test.pdf","fileSize":"100 KB"},st,201)
  paper=created["paper"];pid=paper["id"];assert paper["title"]=="API Test Paper" and paper["status"]=="Pending"
+ assert paper["keywords"]=="api, testing" and paper["authors"][0]["name"]=="Test Student" and paper["fileName"]=="test.pdf"
  req("PATCH",f"/api/papers/{pid}",{"title":"Updated API Test Paper","abstract":"Updated integration test","category":"Computer Networks"},st,200)
  req("GET","/api/researchers",expected=200)
  req("POST",f"/api/papers/{pid}/reviews",{"decision":"Approved","comments":"forbidden"},st,403)
