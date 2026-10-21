@@ -4,6 +4,8 @@ on:
     branches: [cpp-oops-migration]
     paths:
       - "research-paper-managment-main/research-paper-managment-main/cpp/**"
+      - "research-paper-managment-main/js/**"
+      - "research-paper-managment-main/*.html"
       - ".github/workflows/cpp-migration-tests.yml"
   pull_request:
     branches: [main]
@@ -28,3 +30,9 @@ jobs:
         run: cmake --build build --parallel 2
       - name: Test
         run: ctest --test-dir build --output-on-failure
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Browser end-to-end test
+        run: node tests/browser_e2e_test.mjs build/rpms_server build/rpms_create_user
