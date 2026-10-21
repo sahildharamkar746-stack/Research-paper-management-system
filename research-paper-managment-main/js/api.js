@@ -34,6 +34,8 @@
     listPapers: () => request('/api/papers'),
     listCategories: () => request('/api/categories'),
     listUsers: () => request('/api/admin/users'),
+    listResearchers: () => request('/api/researchers'),
+    deleteUser: (id) => request('/api/admin/users/' + encodeURIComponent(id), { method: 'DELETE' }),
     updateUserStatus: (id, status) => request('/api/admin/users/' + encodeURIComponent(id) + '/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
     addCategory: (name) => request('/api/categories', { method: 'POST', body: JSON.stringify({ name }) }),
     renameCategory: (oldName, newName) => request('/api/categories', { method: 'PATCH', body: JSON.stringify({ oldName, newName }) }),
