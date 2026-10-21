@@ -41,6 +41,7 @@
     deletePaper: (id) => request('/api/papers/' + encodeURIComponent(id), { method: 'DELETE' }),
     updatePaperStatus: (id, status) => request('/api/papers/' + encodeURIComponent(id) + '/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
     listReviews: () => request('/api/reviews'),
+    resetRepository: () => request('/api/admin/reset', { method: 'POST' }),
     submitPaper: (paper) => request('/api/papers', { method: 'POST', body: JSON.stringify(paper) })
   });
 })();
