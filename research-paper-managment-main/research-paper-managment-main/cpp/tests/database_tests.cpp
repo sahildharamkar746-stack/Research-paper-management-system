@@ -58,10 +58,14 @@ int main() {
                     "review should be stored and status updated");
             require(db.listReviews(papers.front().id).size() == 1,
                     "review should be listed");
-            require(db.updateUserProfile(rpms::User{.id=user.id, .name="Updated Test Student", .email=user.email,
-                    .role=user.role, .status=user.status, .institution="Test University", .department="Computing",
-                    .designation="Researcher", .bio="Profile test", .interests="AI, Networks"}),
-                    "profile fields should update");
+            rpms::User profileUser = user;
+            profileUser.name = "Updated Test Student";
+            profileUser.institution = "Test University";
+            profileUser.department = "Computing";
+            profileUser.designation = "Researcher";
+            profileUser.bio = "Profile test";
+            profileUser.interests = "AI, Networks";
+            require(db.updateUserProfile(profileUser), "profile fields should update");
             rpms::User cleanupUser;
             require(db.createUser("Cleanup Author", "cleanup@example.test", "cleanup-pass-123", "Student"),
                     "cleanup user should be created");
