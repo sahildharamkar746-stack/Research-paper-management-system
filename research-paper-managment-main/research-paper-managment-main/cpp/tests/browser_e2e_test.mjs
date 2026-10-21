@@ -93,7 +93,17 @@ try {
   await page.goto(webUrl + '/reviews.html');
   await page.waitForSelector('#review-papers-table-body button', { timeout: 10000 });
   await page.locator('#review-papers-table-body button').first().click();
-  if (!await page.locator('#review-modal').isVisible()) throw new Error('Review modal did not open.');
+  if (!await page.locator('#review-modal').isVisible()) {
+    const state = await page.evaluate(() => ({
+      paperCache: typeof getPapers === 'function' ? getPapers().map(p => ({ id: p.id, title: p.title })) : 'no getPapers',
+      selected: typeof selectedReviewPaperId === 'undefined' ? 'undefined' : selectedReviewPaperId,
+      modalClass: document.getElementById('review-modal')?.className,
+      button: document.querySelector('#review-papers-table-body button')?.outerHTML,
+      toasts: [...document.querySelectorAll('.toast-message')].map(x => x.textContent),
+      openReviewModalType: typeof window.openReviewModal
+    }));
+    throw new Error('Review modal did not open. State: ' + JSON.stringify(state) + '; page errors: ' + JSON.stringify(pageErrors));
+  }
   await page.locator('#modal-review-status').selectOption('Approved');
   await page.locator('#modal-review-feedback').fill('Browser E2E review passed.');
   await page.locator('#submit-review-form button[type="submit"]').click();
