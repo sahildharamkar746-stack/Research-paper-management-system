@@ -1,6 +1,6 @@
 # RPMS C++ Migration — Phase 3: HTTP/JSON API
 
-C++17 HTTP API backed by SQLite. Endpoints cover health, student registration/login/logout, categories, papers, paper status, and reviews. Public registration is limited to Student accounts. Authenticated users may submit papers; Faculty/Admin may review; only Admin may override paper status. CORS is restricted to local development origins.
+C++17 HTTP API backed by SQLite. The frontend is wired to server-backed authentication, papers, authors, categories, reviews, profile, activity, and admin actions. Public registration is limited to Student accounts. Authenticated users may submit papers; Faculty/Admin may review; only Admin may override paper status. CORS is restricted to local development origins.
 
 ## Requirements
 C++17, CMake 3.16+, SQLite3, OpenSSL, Python 3, and internet access during first configure to fetch cpp-httplib and nlohmann/json.
@@ -51,4 +51,4 @@ Use the same database path as the server. Keep the database file private and pro
 Errors return JSON with an `error` field. The CTest HTTP integration test seeds Faculty/Admin users using a separate test-only executable; those credentials are not provisioned by the production API.
 
 ## Known gaps
-The login and registration pages now call this API, but the remaining application modules still need full data-flow integration and browser end-to-end verification. Tokens are in-memory and reset when the server restarts. The service is bound to loopback for development. Before production, add HTTPS termination, rate limiting, durable/revocable sessions, approved Faculty/Admin provisioning, comprehensive audit logs, and deployment hardening.
+The CI workflow now includes C++ build/database tests, frontend contract checks, HTTP API integration tests, and Playwright browser end-to-end tests. Tokens are in-memory and reset when the server restarts. The service is bound to loopback for development. Before production, add HTTPS termination, rate limiting, durable/revocable sessions, approved Faculty/Admin provisioning, comprehensive audit logs, and deployment hardening.

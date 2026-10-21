@@ -32,6 +32,12 @@ int main() {
             rpms::Paper paper;
             paper.title = "A Test Paper";
             paper.abstractText = "Test abstract";
+            paper.keywords = "testing, networks";
+            paper.methodology = "Unit test";
+            paper.technologiesUsed = "C++, SQLite";
+            paper.authorsJson = "[{\"name\":\"Test Author\",\"email\":\"student@example.test\"}]";
+            paper.fileName = "test.pdf";
+            paper.fileSize = "100 KB";
             paper.category = "Computer Networks";
             paper.publicationYear = 2026;
             paper.paperType = "Research Paper";
@@ -39,6 +45,11 @@ int main() {
             const auto papers = db.listPapers();
             require(papers.size() == 1 && papers.front().title == paper.title,
                     "created paper should be listed");
+            require(papers.front().keywords == "testing, networks" && papers.front().methodology == "Unit test" &&
+                    papers.front().technologiesUsed == "C++, SQLite" && papers.front().fileName == "test.pdf",
+                    "paper metadata should persist");
+            require(papers.front().authorsJson.find("Test Author") != std::string::npos,
+                    "co-author metadata should persist");
             require(db.updatePaperStatus(papers.front().id, "Under Review"),
                     "valid status update should work");
             require(!db.updatePaperStatus(papers.front().id, "Invalid"),
