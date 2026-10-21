@@ -12,6 +12,11 @@ struct User {
     std::string email;
     std::string role;
     std::string status;
+    std::string institution;
+    std::string department;
+    std::string designation;
+    std::string bio;
+    std::string interests;
 };
 
 struct Paper {
@@ -51,6 +56,7 @@ public:
                       User& outUser) const;
     std::vector<User> listUsers() const;
     bool updateUserStatus(int userId, const std::string& status);
+    bool updateUserProfile(const User& user);
     bool deleteUser(int userId);
     void resetRepositoryData();
     bool createPaper(const Paper& paper, int authorUserId);

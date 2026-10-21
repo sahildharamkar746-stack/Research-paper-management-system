@@ -29,6 +29,7 @@
     baseUrl,
     health: () => request('/health'),
     login: (email, password) => request('/api/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+    updateProfile: (profile) => request('/api/profile', { method: 'PATCH', body: JSON.stringify(profile) }),
     register: (details) => request('/api/register', { method: 'POST', body: JSON.stringify(details) }),
     logout: () => request('/api/logout', { method: 'POST' }),
     listPapers: () => request('/api/papers'),

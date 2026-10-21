@@ -78,6 +78,17 @@ void Database::initialize() {
             "password_salt TEXT NOT NULL, role TEXT NOT NULL CHECK(role IN ('Student','Faculty','Admin')),"
             "status TEXT NOT NULL DEFAULT 'Active' CHECK(status IN ('Active','Disabled')),"
             "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);");
+    auto ensureColumn = [this](const char* sql) {
+        try { execute(sql); }
+        catch (const std::runtime_error& e) {
+            if (std::string(e.what()).find("duplicate column name") == std::string::npos) throw;
+        }
+    };
+    ensureColumn("ALTER TABLE users ADD COLUMN institution TEXT NOT NULL DEFAULT '';");
+    ensureColumn("ALTER TABLE users ADD COLUMN department TEXT NOT NULL DEFAULT '';");
+    ensureColumn("ALTER TABLE users ADD COLUMN designation TEXT NOT NULL DEFAULT '';");
+    ensureColumn("ALTER TABLE users ADD COLUMN bio TEXT NOT NULL DEFAULT '';");
+    ensureColumn("ALTER TABLE users ADD COLUMN interests TEXT NOT NULL DEFAULT '';");
     execute("CREATE TABLE IF NOT EXISTS categories ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE COLLATE NOCASE);");
     execute("CREATE TABLE IF NOT EXISTS papers ("
@@ -141,7 +152,7 @@ bool Database::createUser(const std::string& name, const std::string& email,
 }
 bool Database::authenticate(const std::string& email, const std::string& password,
                             User& outUser) const {
-    Statement s(db_, "SELECT id,name,email,password_hash,password_salt,role,status FROM users WHERE email=? COLLATE NOCASE;");
+    Statement s(db_, "SELECT id,name,email,password_hash,password_salt,role,status,institution,department,designation,bio,interests FROM users WHERE email=? COLLATE NOCASE;");
     s.text(1, email);
     if (sqlite3_step(s.get()) != SQLITE_ROW) return false;
     const std::string storedHash = columnText(s.get(), 3);
@@ -154,11 +165,13 @@ bool Database::authenticate(const std::string& email, const std::string& passwor
     outUser.email = columnText(s.get(), 2);
     outUser.role = role;
     outUser.status = status;
+    outUser.institution = columnText(s.get(), 7); outUser.department = columnText(s.get(), 8);
+    outUser.designation = columnText(s.get(), 9); outUser.bio = columnText(s.get(), 10); outUser.interests = columnText(s.get(), 11);
     return true;
 }
 
 std::vector<User> Database::listUsers() const {
-    Statement s(db_, "SELECT id,name,email,role,status FROM users ORDER BY id;");
+    Statement s(db_, "SELECT id,name,email,role,status,institution,department,designation,bio,interests FROM users ORDER BY id;");
     std::vector<User> result;
     while (sqlite3_step(s.get()) == SQLITE_ROW) {
         User u;
@@ -167,9 +180,19 @@ std::vector<User> Database::listUsers() const {
         u.email = columnText(s.get(), 2);
         u.role = columnText(s.get(), 3);
         u.status = columnText(s.get(), 4);
+        u.institution = columnText(s.get(), 5); u.department = columnText(s.get(), 6);
+        u.designation = columnText(s.get(), 7); u.bio = columnText(s.get(), 8); u.interests = columnText(s.get(), 9);
         result.push_back(std::move(u));
     }
     return result;
+}
+bool Database::updateUserProfile(const User& user) {
+    if (user.id <= 0 || user.name.size() < 2) return false;
+    Statement s(db_, "UPDATE users SET name=?,institution=?,department=?,designation=?,bio=?,interests=? WHERE id=?;");
+    s.text(1,user.name); s.text(2,user.institution); s.text(3,user.department);
+    s.text(4,user.designation); s.text(5,user.bio); s.text(6,user.interests); s.integer(7,user.id);
+    if (!s.stepDone()) return false;
+    return sqlite3_changes(db_) > 0;
 }
 bool Database::deleteUser(int userId) {
     if (userId <= 0) return false;
