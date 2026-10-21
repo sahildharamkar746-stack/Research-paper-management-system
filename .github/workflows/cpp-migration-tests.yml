@@ -11,6 +11,8 @@ on:
     branches: [main]
     paths:
       - "research-paper-managment-main/research-paper-managment-main/cpp/**"
+      - "research-paper-managment-main/js/**"
+      - "research-paper-managment-main/*.html"
       - ".github/workflows/cpp-migration-tests.yml"
 jobs:
   build-and-test:
