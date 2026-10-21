@@ -93,7 +93,7 @@ try {
   await page.goto(webUrl + '/reviews.html');
   await page.waitForSelector('#review-papers-table-body button', { timeout: 10000 });
   await page.locator('#review-papers-table-body button').first().click();
-  if (!await page.locator('#review-modal').isVisible()) {
+  if (await page.locator('#review-modal').getAttribute('class').then(c => (c || '').includes('active')) === false) {
     const state = await page.evaluate(() => ({
       paperCache: typeof getPapers === 'function' ? getPapers().map(p => ({ id: p.id, title: p.title })) : 'no getPapers',
       selected: typeof selectedReviewPaperId === 'undefined' ? 'undefined' : selectedReviewPaperId,
