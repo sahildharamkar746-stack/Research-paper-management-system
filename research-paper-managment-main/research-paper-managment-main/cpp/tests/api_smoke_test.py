@@ -34,11 +34,16 @@ try:
  req("GET","/health",expected=403,origin="https://untrusted.example")
  req("POST","/api/register",{"name":"A","email":"bad","password":"short","role":"Student"},expected=400)
  req("POST","/api/papers",{"title":"No auth","category":"Computer Networks"},expected=401)
+ req("POST","/api/activity",{"text":"unauthenticated event","type":"info"},expected=401)
  req("POST","/api/register",{"name":"Test Student","email":"student@example.test","password":"correct-horse-123","role":"Student"},expected=201)
  req("POST","/api/register",{"name":"Admin Try","email":"admin2@example.test","password":"correct-horse-123","role":"Admin"},expected=403)
  req("POST","/api/register",{"name":"Test Student","email":"student@example.test","password":"correct-horse-123","role":"Student"},expected=409)
  _,student=req("POST","/api/login",{"email":"STUDENT@example.test","password":"correct-horse-123"},expected=200)
  st=student["token"];assert student["user"]["role"]=="Student"
+ _,activity=req("POST","/api/activity",{"text":"Student logged in for integration test","type":"auth"},st,201)
+ assert activity["activity"]["text"]=="Student logged in for integration test"
+ _,activity_list=req("GET","/api/activity",token=st,expected=200)
+ assert len(activity_list["activities"])>=1
  req("POST","/api/login",{"email":"student@example.test","password":"bad-password"},expected=401)
  _,profile=req("PATCH","/api/profile",{"name":"Updated Student","institution":"Test University","department":"Computer Science","designation":"Researcher","bio":"Profile integration test","interests":"AI, Networks"},st,200)
  assert profile["user"]["institution"]=="Test University"

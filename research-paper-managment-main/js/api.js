@@ -34,6 +34,8 @@
     logout: () => request('/api/logout', { method: 'POST' }),
     listPapers: () => request('/api/papers'),
     listCategories: () => request('/api/categories'),
+    listActivity: () => request('/api/activity'),
+    addActivity: (text, type) => request('/api/activity', { method: 'POST', body: JSON.stringify({ text, type }) }),
     listUsers: () => request('/api/admin/users'),
     listResearchers: () => request('/api/researchers'),
     deleteUser: (id) => request('/api/admin/users/' + encodeURIComponent(id), { method: 'DELETE' }),

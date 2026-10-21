@@ -345,7 +345,12 @@ async function hydrateApiCache() {
     }));
   }
   localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(reviews));
-  localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify([]));
+  let activities = [];
+  if (session && localStorage.getItem('rpms_api_token')) {
+    const activityData = await safe(() => api.listActivity(), { activities: [] });
+    activities = activityData.activities || [];
+  }
+  localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(activities));
 }
 function initDatabase() {
   if (window.rpmsApi) {
@@ -581,23 +586,21 @@ function getActivities() {
   }
 }
 
-function addActivity(text, type = 'info') {
-  const activities = getActivities();
-  const now = new Date();
-  const dateStr = now.toISOString().replace('T', ' ').substring(0, 16);
-  const newActivity = {
-    id: 'act_' + Date.now(),
-    text,
-    type,
-    timestamp: dateStr
-  };
-  activities.unshift(newActivity);
-  // Keep only the most recent 40 items
-  if (activities.length > 40) {
-    activities.length = 40;
+async function addActivity(text, type = 'info') {
+  if (window.rpmsApi && localStorage.getItem('rpms_api_token')) {
+    try {
+      const result = await rpmsApi.addActivity(text, type);
+      const item = result.activity || { id: 'act_' + Date.now(), text, type, timestamp: new Date().toISOString() };
+      const activities = [item, ...getActivities().filter(a => String(a.id) !== String(item.id))].slice(0, 40);
+      localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(activities));
+      return item;
+    } catch (error) { console.warn('Unable to persist activity:', error.message); }
   }
-  localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(activities));
-  return newActivity;
+  const activities = getActivities();
+  const item = { id: 'act_' + Date.now(), text, type, timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16) };
+  activities.unshift(item);
+  localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(activities.slice(0, 40)));
+  return item;
 }
 
 // ==========================================

@@ -28,6 +28,8 @@ Run `./build/rpms_server [path-to-database]`. The server binds to `127.0.0.1:808
 - `DELETE /api/categories`: Admin only; `name`
 - `DELETE /api/papers/{id}`: Admin only
 - `GET /api/reviews`: Faculty/Admin only
+- `GET /api/activity`: authenticated; latest 40 events
+- `POST /api/activity`: authenticated; `text,type`
 - `GET /api/papers`
 - `POST /api/papers`: Bearer token; `title,abstract,category,doi,publicationYear,venue,paperType`
 - `PATCH /api/papers/{id}`: owner or Admin; updates paper metadata

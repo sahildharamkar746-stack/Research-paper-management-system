@@ -41,6 +41,14 @@ struct Review {
     std::string createdAt;
 };
 
+struct Activity {
+    int id{};
+    int userId{};
+    std::string text;
+    std::string type;
+    std::string timestamp;
+};
+
 class Database {
 public:
     explicit Database(const std::string& path);
@@ -59,6 +67,8 @@ public:
     bool updateUserProfile(const User& user);
     bool deleteUser(int userId);
     void resetRepositoryData();
+    bool addActivity(int userId, const std::string& text, const std::string& type);
+    std::vector<Activity> listActivities() const;
     bool createPaper(const Paper& paper, int authorUserId);
     std::vector<Paper> listPapers() const;
     bool updatePaper(const Paper& paper);

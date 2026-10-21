@@ -105,6 +105,10 @@ void Database::initialize() {
     execute("CREATE TABLE IF NOT EXISTS activity ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,"
             "event TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);");
+    try { execute("ALTER TABLE activity ADD COLUMN type TEXT NOT NULL DEFAULT 'info';"); }
+    catch (const std::runtime_error& e) {
+        if (std::string(e.what()).find("duplicate column name") == std::string::npos) throw;
+    }
     execute("CREATE INDEX IF NOT EXISTS idx_papers_status ON papers(status);");
     execute("CREATE INDEX IF NOT EXISTS idx_papers_category ON papers(category);");
     execute("CREATE INDEX IF NOT EXISTS idx_reviews_paper ON reviews(paper_id);");
@@ -307,6 +311,24 @@ std::vector<Review> Database::listAllReviews() const {
         r.reviewerId=sqlite3_column_int(s.get(),2); r.decision=columnText(s.get(),3);
         r.comments=columnText(s.get(),4); r.createdAt=columnText(s.get(),5);
         result.push_back(std::move(r));
+    }
+    return result;
+}
+bool Database::addActivity(int userId, const std::string& text, const std::string& type) {
+    if (text.empty() || text.size() > 500 || (type != "auth" && type != "user" && type != "paper" && type != "review" && type != "admin" && type != "info")) return false;
+    Statement s(db_, "INSERT INTO activity(user_id,event,type) VALUES(?,?,?);");
+    if (userId > 0) s.integer(1, userId); else s.integer(1, 0);
+    s.text(2, text); s.text(3, type);
+    return s.stepDone();
+}
+std::vector<Activity> Database::listActivities() const {
+    Statement s(db_, "SELECT id,COALESCE(user_id,0),event,type,created_at FROM activity ORDER BY id DESC LIMIT 40;");
+    std::vector<Activity> result;
+    while (sqlite3_step(s.get()) == SQLITE_ROW) {
+        Activity a;
+        a.id=sqlite3_column_int(s.get(),0); a.userId=sqlite3_column_int(s.get(),1);
+        a.text=columnText(s.get(),2); a.type=columnText(s.get(),3); a.timestamp=columnText(s.get(),4);
+        result.push_back(std::move(a));
     }
     return result;
 }
