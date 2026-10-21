@@ -417,17 +417,22 @@ async function updateUser(updatedUser) {
   const index = users.findIndex(u => String(u.id) === String(updatedUser.id));
   if (index === -1) return null;
   const previous = users[index];
+  let savedUser = { ...previous, ...updatedUser };
   if (window.rpmsApi && previous.status !== updatedUser.status) {
     await rpmsApi.updateUserStatus(updatedUser.id, updatedUser.status);
     await refreshUsersFromApi();
+  } else if (window.rpmsApi && ['name', 'institution', 'department', 'designation', 'bio', 'interests'].some(key => (previous[key] || '') !== (updatedUser[key] || ''))) {
+    const response = await rpmsApi.updateProfile(updatedUser);
+    savedUser = response.user;
+    await refreshUsersFromApi();
   } else {
-    users[index] = { ...previous, ...updatedUser };
+    users[index] = savedUser;
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
   }
   const currentUser = getCurrentUser();
   const current = getUsers().find(u => String(u.id) === String(updatedUser.id));
-  if (currentUser && String(currentUser.id) === String(updatedUser.id) && current) setCurrentUser({ ...currentUser, ...updatedUser });
-  return current || updatedUser;
+  if (currentUser && String(currentUser.id) === String(updatedUser.id) && current) setCurrentUser({ ...currentUser, ...current, ...savedUser });
+  return current || savedUser;
 }
 
 async function deleteUser(id) {
