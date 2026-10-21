@@ -1,12 +1,6 @@
 # RPMS C++ Migration — Phase 3: HTTP/JSON API
 
-## Included
-- C++17 HTTP API backed by SQLite.
-- Health, student registration/login/logout, categories, papers, paper status, and review endpoints.
-- Random bearer tokens held in process memory.
-- Public registration creates Student accounts only; users cannot self-assign Faculty/Admin.
-- Authenticated paper submission; Faculty/Admin review; Admin-only status override.
-- Local-development CORS allowlist and HTTP smoke test registered with CTest.
+C++17 HTTP API backed by SQLite. Endpoints cover health, student registration/login/logout, categories, papers, paper status, and reviews. Public registration is limited to Student accounts. Authenticated users may submit papers; Faculty/Admin may review; only Admin may override paper status. CORS is restricted to local development origins.
 
 ## Requirements
 C++17, CMake 3.16+, SQLite3, OpenSSL, Python 3, and internet access during first configure to fetch cpp-httplib and nlohmann/json.
@@ -31,7 +25,7 @@ Run `./build/rpms_server [path-to-database]`. The server binds to `127.0.0.1:808
 - `GET /api/papers/{id}/reviews`: Faculty/Admin only
 - `POST /api/papers/{id}/reviews`: Faculty/Admin only; `decision,comments`
 
-Errors return JSON with an `error` field.
+Errors return JSON with an `error` field. The CTest HTTP integration test seeds Faculty/Admin users using a separate test-only executable; those credentials are not provisioned by the production API.
 
 ## Known gaps
-The existing frontend still uses LocalStorage and is not wired to this API. Tokens are in-memory and reset when the server restarts. The service is bound to loopback for development. Before production, add HTTPS termination, rate limiting, durable/revocable sessions, account provisioning for Faculty/Admin, comprehensive audit logs, and deployment hardening.
+The existing frontend still uses LocalStorage and is not wired to this API. Tokens are in-memory and reset when the server restarts. The service is bound to loopback for development. Before production, add HTTPS termination, rate limiting, durable/revocable sessions, approved Faculty/Admin provisioning, comprehensive audit logs, and deployment hardening.
