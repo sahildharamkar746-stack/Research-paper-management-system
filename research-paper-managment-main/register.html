@@ -46,7 +46,7 @@
         <span>RPMS</span>
       </a>
       <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--navy-950);">Create Academic Account</h2>
-      <p style="font-size: 0.875rem; color: var(--navy-600); margin-top: 0.25rem;">Join as a student researcher or faculty reviewer</p>
+      <p style="font-size: 0.875rem; color: var(--navy-600); margin-top: 0.25rem;">Create a student researcher account</p>
     </div>
 
     <form id="register-form">
@@ -65,15 +65,15 @@
         <select id="reg-role" class="form-control" required>
           <option value="">-- Select Your Role --</option>
           <option value="Student">Student / Researcher</option>
-          <option value="Faculty">Faculty / Reviewer</option>
+          
         </select>
-        <div class="form-hint">Note: System Administrator role requires administrative invitation.</div>
+        <div class="form-hint">Public registration is limited to Student accounts. Faculty/Admin accounts require operator provisioning.</div>
       </div>
 
       <div class="form-group">
         <label class="form-label" for="reg-password">Password <span class="required">*</span></label>
         <div class="password-toggle-group">
-          <input type="password" id="reg-password" class="form-control" placeholder="At least 6 characters" required>
+          <input type="password" id="reg-password" class="form-control" placeholder="At least 8 characters" required>
           <button type="button" class="toggle-password-btn" id="toggle-reg-pass" title="Toggle password">
             <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -98,6 +98,7 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/data.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
@@ -111,7 +112,7 @@
     });
 
     const form = document.getElementById('register-form');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const name = document.getElementById('reg-name').value;
@@ -120,7 +121,7 @@
       const password = document.getElementById('reg-password').value;
       const confirmPassword = document.getElementById('reg-confirm-password').value;
 
-      const res = register({ name, email, role, password, confirmPassword });
+      const res = await register({ name, email, role, password, confirmPassword });
       if (res.success) {
         showToast(res.message, 'success');
         setTimeout(() => {

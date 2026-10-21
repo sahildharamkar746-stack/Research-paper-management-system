@@ -103,39 +103,13 @@
       Don't have an account? <a href="register.html" class="text-semibold">Register here</a>
     </div>
 
-    <!-- QUICK DEMO PRESET BUTTONS FOR VIVA DEMO -->
     <div class="demo-accounts-box">
-      <div style="font-weight: 700; color: var(--navy-900); margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
-        <span>🎯 Quick Demo Accounts</span>
-        <span style="font-size: 0.7rem; color: var(--indigo-600);">Click to Autofill</span>
-      </div>
-      
-      <div class="demo-account-chip" onclick="fillCredentials('admin@rpms.com', 'admin123')">
-        <div>
-          <strong>Admin</strong> (admin@rpms.com)
-          <div style="font-size: 0.72rem; color: var(--slate-500);">Full System Access &amp; User Mgmt</div>
-        </div>
-        <span class="badge badge-role-admin">Admin</span>
-      </div>
-
-      <div class="demo-account-chip" onclick="fillCredentials('faculty@rpms.com', 'faculty123')">
-        <div>
-          <strong>Faculty</strong> (faculty@rpms.com)
-          <div style="font-size: 0.72rem; color: var(--slate-500);">Dr. Rahul Kulkarni &bull; Peer Reviewer</div>
-        </div>
-        <span class="badge badge-role-faculty">Faculty</span>
-      </div>
-
-      <div class="demo-account-chip" onclick="fillCredentials('student@rpms.com', 'student123')">
-        <div>
-          <strong>Student</strong> (student@rpms.com)
-          <div style="font-size: 0.72rem; color: var(--slate-500);">Aarav Sharma &bull; Submissions &amp; Profile</div>
-        </div>
-        <span class="badge badge-role-student">Student</span>
-      </div>
+      <strong>Account setup</strong>
+      <p style="margin-top: 0.4rem;">Create a Student account using Register. Faculty and Admin accounts must be provisioned by the server operator. Demo passwords are not stored in the browser.</p>
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/data.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
@@ -154,21 +128,14 @@
       }
     });
 
-    // Helper for demo auto-filling
-    function fillCredentials(email, pass) {
-      document.getElementById('login-email').value = email;
-      document.getElementById('login-password').value = pass;
-      showToast(`Selected demo credentials for ${email}`, 'info', 1800);
-    }
-
     // Handle Login Submit
     const form = document.getElementById('login-form');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value.trim();
+      const password = document.getElementById('login-password').value;
 
-      const res = login(email, password);
+      const res = await login(email, password);
       if (res.success) {
         showToast(res.message, 'success');
         setTimeout(() => {

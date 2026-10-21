@@ -11,6 +11,7 @@
  */
 function getCurrentUser() {
   try {
+    if (!localStorage.getItem('rpms_api_token')) return null;
     const raw = localStorage.getItem('rpms_current_user');
     return raw ? JSON.parse(raw) : null;
   } catch (e) {
@@ -37,31 +38,18 @@ function setCurrentUser(user) {
  * @param {string} password 
  * @returns {Object} result { success: boolean, message: string, user: Object|null }
  */
-function login(email, password) {
+async function login(email, password) {
   const cleanEmail = (email || '').trim().toLowerCase();
-  const cleanPass = (password || '').trim();
-
-  if (!cleanEmail || !cleanPass) {
-    return { success: false, message: 'Please provide both email and password.' };
+  if (!cleanEmail || !password) return { success: false, message: 'Please provide both email and password.' };
+  try {
+    const result = await rpmsApi.login(cleanEmail, password);
+    localStorage.setItem('rpms_api_token', result.token);
+    setCurrentUser(result.user);
+    await addActivity(result.user.name + ' (' + result.user.role + ') logged in.', 'auth');
+    return { success: true, message: 'Login successful. Redirecting...', user: result.user };
+  } catch (error) {
+    return { success: false, message: error.message || 'Unable to contact the RPMS server.' };
   }
-
-  const user = findUserByEmail(cleanEmail);
-  if (!user) {
-    return { success: false, message: 'No account found with this email address.' };
-  }
-
-  if (user.status === 'Disabled') {
-    return { success: false, message: 'Your account has been deactivated. Please contact the administrator.' };
-  }
-
-  if (user.password !== cleanPass) {
-    return { success: false, message: 'Invalid password. Please check your credentials.' };
-  }
-
-  // Session successful
-  setCurrentUser(user);
-  addActivity(`${user.name} (${user.role}) logged in.`, 'auth');
-  return { success: true, message: 'Login successful. Redirecting...', user };
 }
 
 /**
@@ -70,66 +58,30 @@ function login(email, password) {
  * @param {Object} details 
  * @returns {Object} result
  */
-function register(details) {
+async function register(details) {
   const { name, email, password, confirmPassword, role } = details;
-
-  if (!name || name.trim().length < 2) {
-    return { success: false, message: 'Please enter a valid full name.' };
-  }
-
+  if (!name || name.trim().length < 2) return { success: false, message: 'Please enter a valid full name.' };
   const cleanEmail = (email || '').trim().toLowerCase();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(cleanEmail)) {
-    return { success: false, message: 'Please enter a valid email address.' };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) return { success: false, message: 'Please enter a valid email address.' };
+  if (!password || password.length < 8) return { success: false, message: 'Password must be at least 8 characters long.' };
+  if (password !== confirmPassword) return { success: false, message: 'Passwords do not match.' };
+  if (role !== 'Student') return { success: false, message: 'Public registration is limited to Student accounts. Faculty and Admin accounts must be provisioned by the system operator.' };
+  try {
+    await rpmsApi.register({ name: name.trim(), email: cleanEmail, password, role: 'Student' });
+    return { success: true, message: 'Registration successful. You can now log in.' };
+  } catch (error) {
+    return { success: false, message: error.message || 'Unable to contact the RPMS server.' };
   }
-
-  if (findUserByEmail(cleanEmail)) {
-    return { success: false, message: 'An account with this email already exists.' };
-  }
-
-  if (!password || password.length < 6) {
-    return { success: false, message: 'Password must be at least 6 characters long.' };
-  }
-
-  if (password !== confirmPassword) {
-    return { success: false, message: 'Passwords do not match.' };
-  }
-
-  if (role === 'Admin') {
-    return { success: false, message: 'Administrator registration is restricted.' };
-  }
-
-  if (!['Student', 'Faculty'].includes(role)) {
-    return { success: false, message: 'Please select a valid role (Student/Researcher or Faculty).' };
-  }
-
-  const newUser = {
-    id: 'user_' + Date.now(),
-    name: name.trim(),
-    email: cleanEmail,
-    password: password,
-    role: role,
-    status: 'Active',
-    institution: 'Apex Institute of Technology',
-    department: 'Engineering & Technology',
-    designation: role === 'Faculty' ? 'Assistant Professor' : 'Undergraduate Student',
-    bio: 'Academic researcher interested in engineering and technological innovation.',
-    interests: 'Computer Science, Engineering, Research',
-    createdAt: new Date().toISOString().split('T')[0]
-  };
-
-  saveUser(newUser);
-  return { success: true, message: 'Registration successful! You can now log in.', user: newUser };
 }
 
 /**
  * Logs out the current user session and redirects to login page.
  */
-function logout() {
+async function logout() {
   const user = getCurrentUser();
-  if (user) {
-    addActivity(`${user.name} logged out.`, 'auth');
-  }
+  if (user) await addActivity(user.name + ' logged out.', 'auth');
+  try { if (window.rpmsApi) await rpmsApi.logout(); } catch (error) { console.warn('Server logout failed:', error.message); }
+  localStorage.removeItem('rpms_api_token');
   localStorage.removeItem('rpms_current_user');
   window.location.href = 'login.html';
 }

@@ -24,7 +24,6 @@ const DEFAULT_USERS = [
     id: 'user_1',
     name: 'System Administrator',
     email: 'admin@rpms.com',
-    password: 'admin123',
     role: 'Admin',
     status: 'Active',
     institution: 'Apex Institute of Technology',
@@ -38,7 +37,6 @@ const DEFAULT_USERS = [
     id: 'user_2',
     name: 'Dr. Rahul Kulkarni',
     email: 'faculty@rpms.com',
-    password: 'faculty123',
     role: 'Faculty',
     status: 'Active',
     institution: 'Apex Institute of Technology',
@@ -52,7 +50,6 @@ const DEFAULT_USERS = [
     id: 'user_3',
     name: 'Aarav Sharma',
     email: 'student@rpms.com',
-    password: 'student123',
     role: 'Student',
     status: 'Active',
     institution: 'Apex Institute of Technology',
@@ -66,7 +63,6 @@ const DEFAULT_USERS = [
     id: 'user_4',
     name: 'Riya Patil',
     email: 'riya.patil@rpms.com',
-    password: 'riya123',
     role: 'Student',
     status: 'Active',
     institution: 'Apex Institute of Technology',
@@ -80,7 +76,6 @@ const DEFAULT_USERS = [
     id: 'user_5',
     name: 'Dr. Neha Deshmukh',
     email: 'neha.deshmukh@rpms.com',
-    password: 'faculty123',
     role: 'Faculty',
     status: 'Active',
     institution: 'Apex Institute of Technology',
@@ -308,26 +303,88 @@ const DEFAULT_ACTIVITIES = [
 /**
  * Initializes the LocalStorage database if not already populated.
  */
-function initDatabase() {
-  if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
-    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
-    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.PAPERS)) {
-    localStorage.setItem(STORAGE_KEYS.PAPERS, JSON.stringify(DEFAULT_PAPERS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.REVIEWS)) {
-    localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(DEFAULT_REVIEWS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.ACTIVITY)) {
-    localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(DEFAULT_ACTIVITIES));
-  }
+function normalizeApiPaper(p) {
+  const email = p.authorEmail || '';
+  const authorName = email.includes('@') ? email.split('@')[0].replace(/[._-]/g, ' ') : 'Researcher';
+  const authors = Array.isArray(p.authors) && p.authors.length ? p.authors : [{ name: authorName, institution: '', email }];
+  return {
+    id: String(p.id), title: p.title || '', abstract: p.abstract || '', keywords: p.keywords || '',
+    category: p.category || '', publicationYear: String(p.publicationYear || ''),
+    doi: p.doi || '', journalConference: p.venue || '', publicationType: p.paperType || 'Research Paper',
+    methodology: p.methodology || '', technologiesUsed: p.technologiesUsed || '',
+    authors, fileName: p.fileName || '', fileSize: p.fileSize || '', status: p.status || 'Pending', submittedBy: email,
+    submissionDate: (p.createdAt || new Date().toISOString()).split(/[ T]/)[0], feedback: '', reviewedBy: '', reviewedDate: ''
+  };
 }
-
-// Ensure database is initialized immediately upon loading data.js
+async function hydrateApiCache() {
+  const api = window.rpmsApi;
+  if (!api) return;
+  const safe = async (task, fallback) => { try { return await task(); } catch (error) { console.warn('RPMS data refresh:', error.message); return fallback; } };
+  const results = await Promise.all([
+    safe(() => api.listPapers(), { papers: [] }),
+    safe(() => api.listCategories(), { categories: [] }),
+    safe(() => api.listResearchers(), { researchers: [] })
+  ]);
+  localStorage.setItem(STORAGE_KEYS.PAPERS, JSON.stringify((results[0].papers || []).map(normalizeApiPaper)));
+  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify((results[1].categories || []).map(name => ({ id: name, name, description: '' }))));
+  let users = results[2].researchers || [];
+  let session = null;
+  try { session = JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_USER) || 'null'); } catch (_) {}
+  if (session && session.role === 'Admin' && localStorage.getItem('rpms_api_token')) {
+    const adminUsers = await safe(() => api.listUsers(), { users });
+    users = adminUsers.users || users;
+  }
+  localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+  let reviews = [];
+  if (session && ['Faculty', 'Admin'].includes(session.role) && localStorage.getItem('rpms_api_token')) {
+    const reviewData = await safe(() => api.listReviews(), { reviews: [] });
+    reviews = (reviewData.reviews || []).map(r => ({
+      id: String(r.id), paperId: String(r.paperId), reviewerId: r.reviewerId,
+      reviewerName: 'Reviewer ' + r.reviewerId, status: r.decision,
+      feedback: r.comments || '', reviewedDate: r.createdAt || ''
+    }));
+  }
+  localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(reviews));
+  let activities = [];
+  if (session && localStorage.getItem('rpms_api_token')) {
+    const activityData = await safe(() => api.listActivity(), { activities: [] });
+    activities = activityData.activities || [];
+  }
+  localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(activities));
+}
+function initDatabase() {
+  if (window.rpmsApi) {
+    [STORAGE_KEYS.USERS, STORAGE_KEYS.PAPERS, STORAGE_KEYS.CATEGORIES, STORAGE_KEYS.REVIEWS, STORAGE_KEYS.ACTIVITY]
+      .forEach(key => localStorage.setItem(key, JSON.stringify([])));
+    window.rpmsDataReady = hydrateApiCache().catch(error => console.error('Unable to hydrate RPMS data from the C++ API:', error));
+    return;
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.USERS)) localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
+  if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
+  if (!localStorage.getItem(STORAGE_KEYS.PAPERS)) localStorage.setItem(STORAGE_KEYS.PAPERS, JSON.stringify(DEFAULT_PAPERS));
+  if (!localStorage.getItem(STORAGE_KEYS.REVIEWS)) localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(DEFAULT_REVIEWS));
+  if (!localStorage.getItem(STORAGE_KEYS.ACTIVITY)) localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(DEFAULT_ACTIVITIES));
+  window.rpmsDataReady = Promise.resolve();
+}
 initDatabase();
+
+async function refreshPapersFromApi() {
+  if (!window.rpmsApi) return getPapers();
+  const result = await rpmsApi.listPapers(), list = (result.papers || []).map(normalizeApiPaper);
+  localStorage.setItem(STORAGE_KEYS.PAPERS, JSON.stringify(list)); return list;
+}
+async function refreshCategoriesFromApi() {
+  if (!window.rpmsApi) return getCategories();
+  const result = await rpmsApi.listCategories(), list = (result.categories || []).map(name => ({ id: name, name, description: '' }));
+  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(list)); return list;
+}
+async function refreshUsersFromApi() {
+  if (!window.rpmsApi) return getUsers();
+  const current = getCurrentUser();
+  const result = current && current.role === 'Admin' ? await rpmsApi.listUsers() : await rpmsApi.listResearchers();
+  const list = result.users || result.researchers || [];
+  localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(list)); return list;
+}
 
 // ==========================================
 // USERS CRUD
@@ -357,35 +414,37 @@ function findUserByEmail(email) {
 
 function findUserById(id) {
   const users = getUsers();
-  return users.find(u => u.id === id);
+  return users.find(u => String(u.id) === String(id));
 }
 
-function updateUser(updatedUser) {
+async function updateUser(updatedUser) {
   const users = getUsers();
-  const index = users.findIndex(u => u.id === updatedUser.id);
-  if (index !== -1) {
-    users[index] = { ...users[index], ...updatedUser };
+  const index = users.findIndex(u => String(u.id) === String(updatedUser.id));
+  if (index === -1) return null;
+  const previous = users[index];
+  let savedUser = { ...previous, ...updatedUser };
+  if (window.rpmsApi && previous.status !== updatedUser.status) {
+    await rpmsApi.updateUserStatus(updatedUser.id, updatedUser.status);
+    await refreshUsersFromApi();
+  } else if (window.rpmsApi && ['name', 'institution', 'department', 'designation', 'bio', 'interests'].some(key => (previous[key] || '') !== (updatedUser[key] || ''))) {
+    const response = await rpmsApi.updateProfile(updatedUser);
+    savedUser = response.user;
+    await refreshUsersFromApi();
+  } else {
+    users[index] = savedUser;
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-
-    // Also update current user if it's the same logged-in account
-    const currentUser = getCurrentUser();
-    if (currentUser && currentUser.id === updatedUser.id) {
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(users[index]));
-    }
-    return users[index];
   }
-  return null;
+  const currentUser = getCurrentUser();
+  const current = getUsers().find(u => String(u.id) === String(updatedUser.id));
+  if (currentUser && String(currentUser.id) === String(updatedUser.id) && current) setCurrentUser({ ...currentUser, ...current, ...savedUser });
+  return current || savedUser;
 }
 
-function deleteUser(id) {
-  let users = getUsers();
-  const user = users.find(u => u.id === id);
-  users = users.filter(u => u.id !== id);
-  localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-  if (user) {
-    addActivity(`Administrator deleted user account "${user.name}".`, 'admin');
-  }
-  return true;
+async function deleteUser(id) {
+  const user = getUsers().find(u => String(u.id) === String(id));
+  if (window.rpmsApi) { await rpmsApi.deleteUser(id); await refreshUsersFromApi(); await refreshPapersFromApi(); return Boolean(user); }
+  localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(getUsers().filter(u => String(u.id) !== String(id))));
+  return Boolean(user);
 }
 
 // ==========================================
@@ -403,44 +462,51 @@ function getPapers() {
 
 function getPaperById(id) {
   const papers = getPapers();
-  return papers.find(p => p.id === id);
+  return papers.find(p => String(p.id) === String(id));
 }
 
-function savePaper(paper) {
-  const papers = getPapers();
-  if (!paper.id) {
-    paper.id = 'paper_' + Date.now();
+async function savePaper(paper) {
+  if (window.rpmsApi) {
+    const saved = await rpmsApi.submitPaper({ title: paper.title, abstract: paper.abstract || '', keywords: paper.keywords || '', category: paper.category,
+      doi: paper.doi || '', publicationYear: Number(paper.publicationYear) || 0, venue: paper.journalConference || '', paperType: paper.publicationType || 'Research Paper',
+      methodology: paper.methodology || '', technologiesUsed: paper.technologiesUsed || '', authors: Array.isArray(paper.authors) ? paper.authors : [], fileName: paper.fileName || '', fileSize: paper.fileSize || '' });
+    await refreshPapersFromApi();
+    return getPaperById(String(saved.paper.id)) || normalizeApiPaper(saved.paper);
   }
+  const papers = getPapers();
+  if (!paper.id) paper.id = 'paper_' + Date.now();
   papers.unshift(paper);
   localStorage.setItem(STORAGE_KEYS.PAPERS, JSON.stringify(papers));
-  
-  const authorNames = Array.isArray(paper.authors) 
-    ? paper.authors.map(a => a.name).join(', ') 
-    : 'Unknown Author';
-  addActivity(`${authorNames} submitted a new paper "${paper.title}".`, 'paper');
   return paper;
 }
 
-function updatePaper(updatedPaper) {
+async function updatePaper(updatedPaper) {
   const papers = getPapers();
-  const index = papers.findIndex(p => p.id === updatedPaper.id);
-  if (index !== -1) {
-    papers[index] = { ...papers[index], ...updatedPaper };
-    localStorage.setItem(STORAGE_KEYS.PAPERS, JSON.stringify(papers));
-    return papers[index];
+  const index = papers.findIndex(p => String(p.id) === String(updatedPaper.id));
+  if (index === -1) return null;
+  const previous = papers[index];
+  if (window.rpmsApi) {
+    if (previous.status !== updatedPaper.status && previous.title === updatedPaper.title && previous.category === updatedPaper.category) {
+      await rpmsApi.updatePaperStatus(updatedPaper.id, updatedPaper.status);
+    } else {
+      await rpmsApi.updatePaper(updatedPaper.id, { title: updatedPaper.title, abstract: updatedPaper.abstract || '', keywords: updatedPaper.keywords || '',
+        category: updatedPaper.category, doi: updatedPaper.doi || '', publicationYear: Number(updatedPaper.publicationYear) || 0,
+        venue: updatedPaper.journalConference || '', paperType: updatedPaper.publicationType || 'Research Paper', methodology: updatedPaper.methodology || '',
+        technologiesUsed: updatedPaper.technologiesUsed || '', authors: Array.isArray(updatedPaper.authors) ? updatedPaper.authors : [], fileName: updatedPaper.fileName || '', fileSize: updatedPaper.fileSize || '' });
+    }
+    await refreshPapersFromApi();
+    return getPaperById(String(updatedPaper.id));
   }
-  return null;
+  papers[index] = { ...previous, ...updatedPaper };
+  localStorage.setItem(STORAGE_KEYS.PAPERS, JSON.stringify(papers));
+  return papers[index];
 }
 
-function deletePaper(id) {
-  let papers = getPapers();
-  const paper = papers.find(p => p.id === id);
-  papers = papers.filter(p => p.id !== id);
-  localStorage.setItem(STORAGE_KEYS.PAPERS, JSON.stringify(papers));
-  if (paper) {
-    addActivity(`Research paper "${paper.title}" was removed.`, 'paper');
-  }
-  return true;
+async function deletePaper(id) {
+  const paper = getPaperById(String(id));
+  if (window.rpmsApi) { await rpmsApi.deletePaper(id); await refreshPapersFromApi(); return Boolean(paper); }
+  localStorage.setItem(STORAGE_KEYS.PAPERS, JSON.stringify(getPapers().filter(p => String(p.id) !== String(id))));
+  return Boolean(paper);
 }
 
 // ==========================================
@@ -456,37 +522,24 @@ function getCategories() {
   }
 }
 
-function saveCategory(cat) {
-  const categories = getCategories();
-  if (!cat.id) {
-    cat.id = 'cat_' + Date.now();
-  }
-  categories.push(cat);
-  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
-  addActivity(`Added new research category "${cat.name}".`, 'admin');
-  return cat;
+async function saveCategory(cat) {
+  if (window.rpmsApi) { await rpmsApi.addCategory(cat.name); await refreshCategoriesFromApi(); return getCategories().find(c => c.name === cat.name) || cat; }
+  const categories = getCategories(); if (!cat.id) cat.id = 'cat_' + Date.now(); categories.push(cat);
+  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories)); return cat;
 }
 
-function updateCategory(updatedCat) {
+async function updateCategory(updatedCat) {
   const categories = getCategories();
-  const index = categories.findIndex(c => c.id === updatedCat.id);
-  if (index !== -1) {
-    categories[index] = { ...categories[index], ...updatedCat };
-    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
-    return categories[index];
-  }
-  return null;
+  const index = categories.findIndex(c => String(c.id) === String(updatedCat.id));
+  if (index === -1) return null;
+  if (window.rpmsApi) { await rpmsApi.renameCategory(categories[index].name, updatedCat.name); await refreshCategoriesFromApi(); return getCategories().find(c => c.name === updatedCat.name) || null; }
+  categories[index] = { ...categories[index], ...updatedCat }; localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories)); return categories[index];
 }
 
-function deleteCategory(id) {
-  let categories = getCategories();
-  const cat = categories.find(c => c.id === id);
-  categories = categories.filter(c => c.id !== id);
-  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
-  if (cat) {
-    addActivity(`Removed research category "${cat.name}".`, 'admin');
-  }
-  return true;
+async function deleteCategory(id) {
+  const categories = getCategories(), cat = categories.find(c => String(c.id) === String(id));
+  if (window.rpmsApi) { if (!cat) return false; await rpmsApi.deleteCategory(cat.name); await refreshCategoriesFromApi(); return true; }
+  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories.filter(c => String(c.id) !== String(id)))); return Boolean(cat);
 }
 
 // ==========================================
@@ -502,25 +555,22 @@ function getReviews() {
   }
 }
 
-function saveReview(review) {
-  const reviews = getReviews();
-  if (!review.id) {
-    review.id = 'rev_' + Date.now();
+async function saveReview(review) {
+  if (window.rpmsApi) {
+    await rpmsApi.submitReview(review.paperId, review.status, review.feedback || '');
+    await refreshPapersFromApi();
+    const response = await rpmsApi.listReviews();
+    const list = (response.reviews || []).map(r => ({ id: String(r.id), paperId: String(r.paperId), reviewerId: r.reviewerId,
+      reviewerName: 'Reviewer ' + r.reviewerId, status: r.decision, feedback: r.comments || '', reviewedDate: r.createdAt || '' }));
+    localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(list));
+    return review;
   }
-  reviews.unshift(review);
-  localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(reviews));
-
-  // Update status in paper record
+  const list = getReviews();
+  if (!review.id) review.id = 'rev_' + Date.now();
+  list.unshift(review);
+  localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(list));
   const paper = getPaperById(review.paperId);
-  if (paper) {
-    paper.status = review.status;
-    paper.feedback = review.feedback;
-    paper.reviewedBy = review.reviewerName;
-    paper.reviewedDate = review.reviewedDate;
-    updatePaper(paper);
-
-    addActivity(`${review.reviewerName} marked paper "${paper.title}" as ${review.status}.`, 'review');
-  }
+  if (paper) { paper.status = review.status; paper.feedback = review.feedback; paper.reviewedBy = review.reviewerName; paper.reviewedDate = review.reviewedDate; await updatePaper(paper); }
   return review;
 }
 
@@ -537,23 +587,21 @@ function getActivities() {
   }
 }
 
-function addActivity(text, type = 'info') {
-  const activities = getActivities();
-  const now = new Date();
-  const dateStr = now.toISOString().replace('T', ' ').substring(0, 16);
-  const newActivity = {
-    id: 'act_' + Date.now(),
-    text,
-    type,
-    timestamp: dateStr
-  };
-  activities.unshift(newActivity);
-  // Keep only the most recent 40 items
-  if (activities.length > 40) {
-    activities.length = 40;
+async function addActivity(text, type = 'info') {
+  if (window.rpmsApi && localStorage.getItem('rpms_api_token')) {
+    try {
+      const result = await rpmsApi.addActivity(text, type);
+      const item = result.activity || { id: 'act_' + Date.now(), text, type, timestamp: new Date().toISOString() };
+      const activities = [item, ...getActivities().filter(a => String(a.id) !== String(item.id))].slice(0, 40);
+      localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(activities));
+      return item;
+    } catch (error) { console.warn('Unable to persist activity:', error.message); }
   }
-  localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(activities));
-  return newActivity;
+  const activities = getActivities();
+  const item = { id: 'act_' + Date.now(), text, type, timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16) };
+  activities.unshift(item);
+  localStorage.setItem(STORAGE_KEYS.ACTIVITY, JSON.stringify(activities.slice(0, 40)));
+  return item;
 }
 
 // ==========================================
@@ -664,7 +712,8 @@ function getResearchInsights() {
 /**
  * Restores sample seed data back to factory default.
  */
-function resetDatabaseToDefault() {
+async function resetDatabaseToDefault() {
+  if (window.rpmsApi) { await rpmsApi.resetRepository(); await hydrateApiCache(); return; }
   localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
   localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
   localStorage.setItem(STORAGE_KEYS.PAPERS, JSON.stringify(DEFAULT_PAPERS));

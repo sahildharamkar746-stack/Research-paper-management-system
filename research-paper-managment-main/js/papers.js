@@ -3,7 +3,8 @@
  * papers.js - Paper Library, Search, Filters, Multi-Author Form & Details
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.rpmsDataReady;
   const currentPath = window.location.pathname.split('/').pop();
 
   if (currentPath === 'papers.html') {
@@ -376,7 +377,7 @@ function loadPaperForEditing(id) {
   }
 }
 
-function handlePaperFormSubmit(e) {
+async function handlePaperFormSubmit(e) {
   e.preventDefault();
 
   const currentUser = getCurrentUser();
@@ -451,8 +452,8 @@ function handlePaperFormSubmit(e) {
       ...existing,
       ...paperData
     };
-    updatePaper(updated);
-    showToast('Paper updated successfully!', 'success');
+    try { await updatePaper(updated); showToast('Paper updated successfully!', 'success'); }
+    catch (error) { showToast(error.message || 'Unable to update paper.', 'error'); return; }
   } else {
     paperData.id = 'paper_' + Date.now();
     paperData.status = 'Pending';
@@ -461,8 +462,8 @@ function handlePaperFormSubmit(e) {
     paperData.feedback = '';
     paperData.reviewedBy = '';
     paperData.reviewedDate = '';
-    savePaper(paperData);
-    showToast('Paper submitted successfully for review!', 'success');
+    try { await savePaper(paperData); showToast('Paper submitted successfully for review!', 'success'); }
+    catch (error) { showToast(error.message || 'Unable to submit paper.', 'error'); return; }
   }
 
   setTimeout(() => {
@@ -630,10 +631,10 @@ function renderStatusTracker(status) {
   }
 }
 
-window.confirmDeletePaper = function(id) {
+window.confirmDeletePaper = async function(id) {
   if (confirm('Are you sure you want to permanently delete this research paper? This action cannot be undone.')) {
-    deletePaper(id);
-    showToast('Paper deleted successfully.', 'success');
+    try { await deletePaper(id); showToast('Paper deleted successfully.', 'success'); }
+    catch (error) { showToast(error.message || 'Unable to delete paper.', 'error'); return; }
     setTimeout(() => {
       window.location.href = 'papers.html';
     }, 1000);

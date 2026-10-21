@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Profile - RPMS</title>
+  <title>Research Categories - RPMS</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/responsive.css">
@@ -54,7 +54,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Researchers</span>
           </a>
-          <a href="categories.html">
+          <a href="categories.html" class="active">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
             <span>Categories</span>
           </a>
@@ -62,7 +62,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             <span>Reviews</span>
           </a>
-          <a href="profile.html" class="active">
+          <a href="profile.html">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>Profile</span>
           </a>
@@ -97,123 +97,77 @@
       <header class="top-header">
         <div class="top-header-left">
           <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="Toggle Sidebar">☰</button>
-          <h1 class="page-title">Researcher Profile</h1>
+          <h1 class="page-title">Research Categories</h1>
         </div>
       </header>
 
-      <main class="content-body" style="max-width: 960px;">
-        <!-- PROFILE SUMMARY CARD -->
-        <div class="paper-detail-card" style="margin-bottom: 2rem;">
-          <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
-            <div class="user-avatar-circle current-user-avatar" style="width: 80px; height: 80px; font-size: 2rem; box-shadow: var(--shadow-md);">
-              AS
-            </div>
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <h2 class="current-user-name" style="font-size: 1.6rem; font-weight: 800; color: var(--navy-950);">Aarav Sharma</h2>
-                <span class="current-user-role badge">Student</span>
-              </div>
-              <div class="current-user-email" style="color: var(--navy-600); font-size: 0.95rem; margin-top: 0.2rem;">student@rpms.com</div>
-              <div style="font-size: 0.85rem; color: var(--slate-500); margin-top: 0.4rem;">
-                Total Authored Papers in Repository: <strong id="profile-paper-count" style="color: var(--indigo-600);">0</strong>
-              </div>
-            </div>
-          </div>
+      <main class="content-body">
+        <div class="results-info-bar">
+          <span>Explore institutional research indexed across engineering fields</span>
+          <span id="categories-count-badge" class="badge badge-category"></span>
         </div>
 
-        <!-- EDIT PROFILE FORM -->
-        <form id="edit-profile-form" class="paper-detail-card">
-          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-950); margin-bottom: 1.5rem;">
-            Edit Profile Information
-          </h3>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="form-group">
-              <label class="form-label" for="prof-name">Full Name <span class="required">*</span></label>
-              <input type="text" id="prof-name" class="form-control" required>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="prof-email">Email Address (Read-only)</label>
-              <input type="email" id="prof-email" class="form-control" disabled style="background-color: var(--slate-100); cursor: not-allowed;">
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="form-group">
-              <label class="form-label" for="prof-institution">Institution / University</label>
-              <input type="text" id="prof-institution" class="form-control">
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="prof-department">Academic Department</label>
-              <input type="text" id="prof-department" class="form-control">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="prof-designation">Designation</label>
-            <input type="text" id="prof-designation" class="form-control" placeholder="e.g. Associate Professor / Senior Research Fellow">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="prof-interests">Research Interests</label>
-            <input type="text" id="prof-interests" class="form-control" placeholder="e.g. Neural Networks, Internet of Things, Autonomous Systems">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="prof-bio">Academic Biography</label>
-            <textarea id="prof-bio" class="form-control" rows="3" placeholder="Summary of your scholarly background and research endeavors..."></textarea>
-          </div>
-
-          <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
-            <button type="submit" class="btn btn-primary">Save Profile Changes</button>
-          </div>
-        </form>
+        <div class="papers-grid" id="categories-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+          <!-- Populated by JavaScript -->
+        </div>
       </main>
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/data.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const user = requireAuth();
-      if (!user) return;
-
-      // Populate counts
-      const papers = getPapers().filter(p => p.submittedBy === user.email);
-      document.getElementById('profile-paper-count').textContent = papers.length;
-
-      // Fill inputs
-      document.getElementById('prof-name').value = user.name || '';
-      document.getElementById('prof-email').value = user.email || '';
-      document.getElementById('prof-institution').value = user.institution || '';
-      document.getElementById('prof-department').value = user.department || '';
-      document.getElementById('prof-designation').value = user.designation || '';
-      document.getElementById('prof-interests').value = user.interests || '';
-      document.getElementById('prof-bio').value = user.bio || '';
-
-      // Form submission
-      document.getElementById('edit-profile-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const updated = {
-          ...user,
-          name: document.getElementById('prof-name').value.trim(),
-          institution: document.getElementById('prof-institution').value.trim(),
-          department: document.getElementById('prof-department').value.trim(),
-          designation: document.getElementById('prof-designation').value.trim(),
-          interests: document.getElementById('prof-interests').value.trim(),
-          bio: document.getElementById('prof-bio').value.trim()
-        };
-
-        updateUser(updated);
-        addActivity(`${updated.name} updated profile information.`, 'user');
-        renderUserUI();
-        showToast('Profile updated successfully!', 'success');
-      });
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.rpmsDataReady;
+      renderCategoriesCards();
     });
+
+    function renderCategoriesCards() {
+      const container = document.getElementById('categories-grid');
+      const badge = document.getElementById('categories-count-badge');
+      if (!container) return;
+
+      const categories = getCategories();
+      const papers = getPapers();
+
+      if (badge) badge.textContent = `${categories.length} Specialized Disciplines`;
+
+      let html = '';
+      categories.forEach(c => {
+        const count = papers.filter(p => p.category === c.name).length;
+
+        html += `
+          <div class="paper-card">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+              <div class="feature-icon-wrapper" style="margin-bottom: 0; width: 44px; height: 44px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+                </svg>
+              </div>
+              <span class="badge ${count > 0 ? 'badge-approved' : 'badge-pending'}">${count} Papers</span>
+            </div>
+
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--navy-950); margin-bottom: 0.5rem;">
+              ${escapeHtml(c.name)}
+            </h3>
+
+            <p style="font-size: 0.85rem; color: var(--navy-600); line-height: 1.5; margin-bottom: 1.5rem; flex: 1;">
+              ${escapeHtml(c.description || 'Scholarly papers and engineering research in this field.')}
+            </p>
+
+            <div class="paper-card-footer" style="padding-top: 0.85rem;">
+              <a href="papers.html" onclick="sessionStorage.setItem('rpms_filter_cat', '${escapeHtml(c.name)}')" class="btn btn-secondary btn-sm" style="width: 100%;">
+                Browse Category &rarr;
+              </a>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
   </script>
 </body>
 </html>

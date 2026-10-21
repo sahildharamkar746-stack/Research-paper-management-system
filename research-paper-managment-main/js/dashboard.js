@@ -3,7 +3,8 @@
  * dashboard.js - Dashboard Metrics, Visual Analytics & Activity Logs
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.rpmsDataReady;
   // Enforce session check
   const currentUser = requireAuth();
   if (!currentUser) return;
