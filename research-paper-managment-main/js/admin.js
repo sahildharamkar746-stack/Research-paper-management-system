@@ -5,7 +5,8 @@
 
 let editingCategoryId = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.rpmsDataReady;
   // Strictly enforce Admin privileges
   const currentUser = requireAuth(['Admin']);
   if (!currentUser) return;
@@ -27,11 +28,10 @@ function initAdminDashboard() {
   // Database reset button
   const resetBtn = document.getElementById('btn-reset-db');
   if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      if (confirm('CAUTION: This will reset all demo users, papers, reviews and activities back to factory defaults. Proceed?')) {
-        resetDatabaseToDefault();
-        showToast('Database reset to default demo records.', 'info');
-        setTimeout(() => window.location.reload(), 1000);
+    resetBtn.addEventListener('click', async () => {
+      if (confirm('CAUTION: This deletes all papers and reviews and resets categories and activity data. User accounts will be retained. Proceed?')) {
+        try { await resetDatabaseToDefault(); showToast('Repository data reset.', 'info'); setTimeout(() => window.location.reload(), 1000); }
+        catch (error) { showToast(error.message || 'Unable to reset repository data.', 'error'); }
       }
     });
   }
@@ -98,24 +98,23 @@ window.viewUserModal = function(userId) {
   openModal('user-details-modal');
 };
 
-window.toggleUserStatus = function(userId) {
+window.toggleUserStatus = async function(userId) {
   const user = findUserById(userId);
   if (!user) return;
 
   user.status = user.status === 'Active' ? 'Disabled' : 'Active';
-  updateUser(user);
-  showToast(`Account status for ${user.name} changed to ${user.status}.`, 'info');
+  try { await updateUser(user); showToast(`Account status for ${user.name} changed to ${user.status}.`, 'info'); }
+  catch (error) { user.status = user.status === 'Active' ? 'Disabled' : 'Active'; showToast(error.message || 'Unable to update account.', 'error'); }
   renderAdminUsersTable();
 };
 
-window.confirmDeleteUser = function(userId) {
+window.confirmDeleteUser = async function(userId) {
   const user = findUserById(userId);
   if (!user) return;
 
   if (confirm(`Are you sure you want to delete user account "${user.name}"?`)) {
-    deleteUser(userId);
-    showToast('User removed from system.', 'success');
-    renderAdminUsersTable();
+    try { await deleteUser(userId); showToast('User and their authored papers removed from system.', 'success'); renderAdminUsersTable(); }
+    catch (error) { showToast(error.message || 'Unable to delete user.', 'error'); }
   }
 };
 
@@ -174,7 +173,7 @@ window.openStatusChangeModal = function(paperId) {
   openModal('change-status-modal');
 };
 
-document.getElementById('form-change-status')?.addEventListener('submit', (e) => {
+document.getElementById('form-change-status')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const id = document.getElementById('status-modal-paper-id').value;
   const newStatus = document.getElementById('status-modal-select').value;
@@ -182,7 +181,8 @@ document.getElementById('form-change-status')?.addEventListener('submit', (e) =>
 
   if (paper) {
     paper.status = newStatus;
-    updatePaper(paper);
+    try { await updatePaper(paper); }
+    catch (error) { showToast(error.message || 'Unable to update paper status.', 'error'); return; }
     addActivity(`Administrator manually changed status of "${paper.title}" to ${newStatus}.`, 'admin');
     closeModal('change-status-modal');
     showToast(`Paper status updated to ${newStatus}.`, 'success');
@@ -190,11 +190,10 @@ document.getElementById('form-change-status')?.addEventListener('submit', (e) =>
   }
 });
 
-window.adminDeletePaper = function(paperId) {
+window.adminDeletePaper = async function(paperId) {
   if (confirm('Permanently delete this paper from the academic repository?')) {
-    deletePaper(paperId);
-    showToast('Paper deleted by administrator.', 'success');
-    renderAdminPapersTable();
+    try { await deletePaper(paperId); showToast('Paper deleted by administrator.', 'success'); renderAdminPapersTable(); }
+    catch (error) { showToast(error.message || 'Unable to delete paper.', 'error'); }
   }
 };
 
@@ -251,7 +250,7 @@ window.openEditCategoryModal = function(catId) {
   openModal('category-modal');
 };
 
-function handleCategoryFormSubmit(e) {
+async function handleCategoryFormSubmit(e) {
   e.preventDefault();
 
   const name = document.getElementById('category-name-input').value.trim();
@@ -263,25 +262,24 @@ function handleCategoryFormSubmit(e) {
   }
 
   if (editingCategoryId) {
-    updateCategory({ id: editingCategoryId, name, description });
-    showToast('Category updated successfully.', 'success');
+    try { await updateCategory({ id: editingCategoryId, name, description }); showToast('Category updated successfully.', 'success'); }
+    catch (error) { showToast(error.message || 'Unable to update category.', 'error'); return; }
   } else {
-    saveCategory({ name, description, icon: 'folder' });
-    showToast('New category created.', 'success');
+    try { await saveCategory({ name, description, icon: 'folder' }); showToast('New category created.', 'success'); }
+    catch (error) { showToast(error.message || 'Unable to create category.', 'error'); return; }
   }
 
   closeModal('category-modal');
   renderAdminCategoriesList();
 }
 
-window.confirmDeleteCategory = function(catId) {
+window.confirmDeleteCategory = async function(catId) {
   const categories = getCategories();
   const cat = categories.find(c => c.id === catId);
   if (!cat) return;
 
   if (confirm(`Delete category "${cat.name}"? Existing papers will keep their category title.`)) {
-    deleteCategory(catId);
-    showToast('Category deleted.', 'info');
-    renderAdminCategoriesList();
+    try { await deleteCategory(catId); showToast('Category deleted.', 'info'); renderAdminCategoriesList(); }
+    catch (error) { showToast(error.message || 'Unable to delete category.', 'error'); }
   }
 };

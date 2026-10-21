@@ -5,7 +5,8 @@
 
 let selectedReviewPaperId = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.rpmsDataReady;
   // Only Faculty & Admin are permitted to access this module
   const currentUser = requireAuth(['Faculty', 'Admin']);
   if (!currentUser) return;
@@ -109,7 +110,7 @@ window.openReviewModal = function(paperId) {
 /**
  * Handles submission of a faculty review and feedback.
  */
-function handleReviewSubmit(e) {
+async function handleReviewSubmit(e) {
   e.preventDefault();
 
   if (!selectedReviewPaperId) return;
@@ -133,7 +134,8 @@ function handleReviewSubmit(e) {
     reviewedDate: new Date().toISOString().split('T')[0]
   };
 
-  saveReview(reviewRecord);
+  try { await saveReview(reviewRecord); }
+  catch (error) { showToast(error.message || 'Unable to save review.', 'error'); return; }
   closeModal('review-modal');
   showToast(`Review submitted successfully. Status updated to ${newStatus}.`, 'success');
 
