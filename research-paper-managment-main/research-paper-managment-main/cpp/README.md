@@ -19,6 +19,13 @@ Run `./build/rpms_server [path-to-database]`. The server binds to `127.0.0.1:808
 - `POST /api/login`: `email,password` (returns `token,user`)
 - `POST /api/logout`: Bearer token
 - `GET /api/categories`
+- `GET /api/admin/users`: Admin only
+- `PATCH /api/admin/users/{id}/status`: Admin only; `status` is `Active` or `Disabled`
+- `POST /api/categories`: Admin only; `name`
+- `PATCH /api/categories`: Admin only; `oldName,newName`
+- `DELETE /api/categories`: Admin only; `name`
+- `DELETE /api/papers/{id}`: Admin only
+- `GET /api/reviews`: Faculty/Admin only
 - `GET /api/papers`
 - `POST /api/papers`: Bearer token; `title,abstract,category,doi,publicationYear,venue,paperType`
 - `PATCH /api/papers/{id}/status`: Admin only; `status`
@@ -28,4 +35,4 @@ Run `./build/rpms_server [path-to-database]`. The server binds to `127.0.0.1:808
 Errors return JSON with an `error` field. The CTest HTTP integration test seeds Faculty/Admin users using a separate test-only executable; those credentials are not provisioned by the production API.
 
 ## Known gaps
-The existing frontend still uses LocalStorage and is not wired to this API. Tokens are in-memory and reset when the server restarts. The service is bound to loopback for development. Before production, add HTTPS termination, rate limiting, durable/revocable sessions, approved Faculty/Admin provisioning, comprehensive audit logs, and deployment hardening.
+The login and registration pages now call this API, but the remaining application modules still need full data-flow integration and browser end-to-end verification. Tokens are in-memory and reset when the server restarts. The service is bound to loopback for development. Before production, add HTTPS termination, rate limiting, durable/revocable sessions, approved Faculty/Admin provisioning, comprehensive audit logs, and deployment hardening.

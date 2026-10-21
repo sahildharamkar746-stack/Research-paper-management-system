@@ -33,6 +33,14 @@
     logout: () => request('/api/logout', { method: 'POST' }),
     listPapers: () => request('/api/papers'),
     listCategories: () => request('/api/categories'),
+    listUsers: () => request('/api/admin/users'),
+    updateUserStatus: (id, status) => request('/api/admin/users/' + encodeURIComponent(id) + '/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
+    addCategory: (name) => request('/api/categories', { method: 'POST', body: JSON.stringify({ name }) }),
+    renameCategory: (oldName, newName) => request('/api/categories', { method: 'PATCH', body: JSON.stringify({ oldName, newName }) }),
+    deleteCategory: (name) => request('/api/categories', { method: 'DELETE', body: JSON.stringify({ name }) }),
+    deletePaper: (id) => request('/api/papers/' + encodeURIComponent(id), { method: 'DELETE' }),
+    updatePaperStatus: (id, status) => request('/api/papers/' + encodeURIComponent(id) + '/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
+    listReviews: () => request('/api/reviews'),
     submitPaper: (paper) => request('/api/papers', { method: 'POST', body: JSON.stringify(paper) })
   });
 })();

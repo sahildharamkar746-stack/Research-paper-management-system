@@ -156,6 +156,29 @@ bool Database::authenticate(const std::string& email, const std::string& passwor
     outUser.status = status;
     return true;
 }
+
+std::vector<User> Database::listUsers() const {
+    Statement s(db_, "SELECT id,name,email,role,status FROM users ORDER BY id;");
+    std::vector<User> result;
+    while (sqlite3_step(s.get()) == SQLITE_ROW) {
+        User u;
+        u.id = sqlite3_column_int(s.get(), 0);
+        u.name = columnText(s.get(), 1);
+        u.email = columnText(s.get(), 2);
+        u.role = columnText(s.get(), 3);
+        u.status = columnText(s.get(), 4);
+        result.push_back(std::move(u));
+    }
+    return result;
+}
+bool Database::updateUserStatus(int userId, const std::string& status) {
+    if (userId <= 0 || (status != "Active" && status != "Disabled")) return false;
+    Statement s(db_, "UPDATE users SET status=? WHERE id=?;");
+    s.text(1, status); s.integer(2, userId);
+    if (!s.stepDone()) return false;
+    return sqlite3_changes(db_) > 0;
+}
+
 bool Database::createPaper(const Paper& p, int authorUserId) {
     if (p.title.empty() || p.category.empty() || authorUserId <= 0) return false;
     Statement s(db_, "INSERT INTO papers(title,abstract,category,doi,publication_year,venue,paper_type,author_user_id) VALUES(?,?,?,?,?,?,?,?);");
@@ -185,6 +208,13 @@ bool Database::updatePaperStatus(int paperId, const std::string& status) {
     if (!s.stepDone()) return false;
     return sqlite3_changes(db_) > 0;
 }
+bool Database::deletePaper(int paperId) {
+    if (paperId <= 0) return false;
+    Statement s(db_, "DELETE FROM papers WHERE id=?;");
+    s.integer(1, paperId);
+    if (!s.stepDone()) return false;
+    return sqlite3_changes(db_) > 0;
+}
 bool Database::addReview(int paperId, int reviewerId, const std::string& decision,
                          const std::string& comments) {
     if (paperId <= 0 || reviewerId <= 0 ||
@@ -208,11 +238,37 @@ std::vector<Review> Database::listReviews(int paperId) const {
     }
     return result;
 }
+std::vector<Review> Database::listAllReviews() const {
+    Statement s(db_, "SELECT id,paper_id,reviewer_id,decision,comments,created_at FROM reviews ORDER BY id DESC;");
+    std::vector<Review> result;
+    while (sqlite3_step(s.get()) == SQLITE_ROW) {
+        Review r;
+        r.id=sqlite3_column_int(s.get(),0); r.paperId=sqlite3_column_int(s.get(),1);
+        r.reviewerId=sqlite3_column_int(s.get(),2); r.decision=columnText(s.get(),3);
+        r.comments=columnText(s.get(),4); r.createdAt=columnText(s.get(),5);
+        result.push_back(std::move(r));
+    }
+    return result;
+}
 bool Database::addCategory(const std::string& name) {
     if (name.empty()) return false;
     Statement s(db_, "INSERT INTO categories(name) VALUES(?);");
     s.text(1,name);
     return s.stepDone();
+}
+bool Database::renameCategory(const std::string& oldName, const std::string& newName) {
+    if (oldName.empty() || newName.empty()) return false;
+    Statement s(db_, "UPDATE categories SET name=? WHERE name=? COLLATE NOCASE;");
+    s.text(1, newName); s.text(2, oldName);
+    if (!s.stepDone()) return false;
+    return sqlite3_changes(db_) > 0;
+}
+bool Database::deleteCategory(const std::string& name) {
+    if (name.empty()) return false;
+    Statement s(db_, "DELETE FROM categories WHERE name=? COLLATE NOCASE;");
+    s.text(1, name);
+    if (!s.stepDone()) return false;
+    return sqlite3_changes(db_) > 0;
 }
 std::vector<std::string> Database::listCategories() const {
     Statement s(db_, "SELECT name FROM categories ORDER BY name COLLATE NOCASE;");

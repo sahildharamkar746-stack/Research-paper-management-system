@@ -49,13 +49,19 @@ public:
                     const std::string& password, const std::string& role);
     bool authenticate(const std::string& email, const std::string& password,
                       User& outUser) const;
+    std::vector<User> listUsers() const;
+    bool updateUserStatus(int userId, const std::string& status);
     bool createPaper(const Paper& paper, int authorUserId);
     std::vector<Paper> listPapers() const;
     bool updatePaperStatus(int paperId, const std::string& status);
+    bool deletePaper(int paperId);
     bool addReview(int paperId, int reviewerId, const std::string& decision,
                    const std::string& comments);
     std::vector<Review> listReviews(int paperId) const;
+    std::vector<Review> listAllReviews() const;
     bool addCategory(const std::string& name);
+    bool renameCategory(const std::string& oldName, const std::string& newName);
+    bool deleteCategory(const std::string& name);
     std::vector<std::string> listCategories() const;
 
 private:
