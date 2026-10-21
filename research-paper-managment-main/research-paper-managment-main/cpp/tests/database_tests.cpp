@@ -58,6 +58,25 @@ int main() {
                     "review should be stored and status updated");
             require(db.listReviews(papers.front().id).size() == 1,
                     "review should be listed");
+            require(db.updateUserProfile(rpms::User{.id=user.id, .name="Updated Test Student", .email=user.email,
+                    .role=user.role, .status=user.status, .institution="Test University", .department="Computing",
+                    .designation="Researcher", .bio="Profile test", .interests="AI, Networks"}),
+                    "profile fields should update");
+            rpms::User cleanupUser;
+            require(db.createUser("Cleanup Author", "cleanup@example.test", "cleanup-pass-123", "Student"),
+                    "cleanup user should be created");
+            require(db.authenticate("cleanup@example.test", "cleanup-pass-123", cleanupUser),
+                    "cleanup user should authenticate");
+            rpms::Paper cleanupPaper;
+            cleanupPaper.title = "Cleanup Paper";
+            cleanupPaper.category = "Computer Networks";
+            require(db.createPaper(cleanupPaper, cleanupUser.id), "cleanup paper should be created");
+            const auto cleanupId = db.listPapers().front().id;
+            require(db.addReview(cleanupId, user.id, "Rejected", "cleanup review"),
+                    "cleanup review should be created");
+            require(db.deleteUser(cleanupUser.id), "user deletion should succeed");
+            require(db.listPapers().size() == 1, "deleting a user should remove their authored papers");
+            require(db.listReviews(cleanupId).empty(), "deleting a user's paper should remove related reviews");
         }
         std::remove(path.c_str());
         std::remove((path + "-wal").c_str());
