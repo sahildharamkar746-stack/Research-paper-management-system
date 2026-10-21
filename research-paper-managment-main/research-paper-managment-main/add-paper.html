@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Research Paper - RPMS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="dashboard-sidebar">
+      <div class="sidebar-header">
+        <a href="dashboard.html" class="sidebar-brand">
+          <div class="logo-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
+          <div>
+            <span>RPMS</span>
+            <span class="sidebar-brand-sub">Academic Portal</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="sidebar-nav-wrapper">
+        <div class="nav-section-title">Core Navigation</div>
+        <nav class="sidebar-nav">
+          <a href="dashboard.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="papers.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Research Papers</span>
+          </a>
+          <a href="add-paper.html" class="active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <span>Add Paper</span>
+          </a>
+          <a href="my-papers.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>My Papers</span>
+          </a>
+          <a href="researchers.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Researchers</span>
+          </a>
+          <a href="categories.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span>Categories</span>
+          </a>
+          <a href="reviews.html" class="faculty-only">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <span>Reviews</span>
+          </a>
+          <a href="profile.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profile</span>
+          </a>
+        </nav>
+
+        <div class="nav-section-title admin-only">Administration</div>
+        <nav class="sidebar-nav admin-only">
+          <a href="admin.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Admin Console</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="user-avatar-circle current-user-avatar">AS</div>
+          <div class="user-snippet-details">
+            <div class="user-snippet-name current-user-name">Aarav Sharma</div>
+            <div class="user-snippet-role"><span class="current-user-role badge">Student</span></div>
+          </div>
+        </div>
+        <button class="sidebar-logout-btn" onclick="logout()">
+          <svg style="width: 15px; height: 15px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN VIEW -->
+    <div class="main-wrapper">
+      <header class="top-header">
+        <div class="top-header-left">
+          <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="Toggle Sidebar">☰</button>
+          <h1 class="page-title" id="form-page-title">Submit Research Paper</h1>
+        </div>
+        <div class="top-header-right">
+          <a href="papers.html" class="btn btn-secondary btn-sm">
+            Cancel &amp; Back
+          </a>
+        </div>
+      </header>
+
+      <main class="content-body" style="max-width: 960px;">
+        <form id="paper-form" class="paper-detail-card">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy-950); margin-bottom: 0.5rem;">
+            1. Paper Information
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--navy-600); margin-bottom: 1.5rem;">
+            Enter comprehensive bibliographic and technical information regarding your manuscript.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label" for="paper-title">Paper Title <span class="required">*</span></label>
+            <input type="text" id="paper-title" class="form-control" placeholder="e.g. Distributed Consensus in Edge Networks" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="paper-abstract">Abstract <span class="required">*</span></label>
+            <textarea id="paper-abstract" class="form-control" rows="4" placeholder="Brief synopsis covering background, problem statement, core findings and contributions..." required></textarea>
+            <div class="form-hint">Minimum 30 characters required.</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="paper-category">Research Discipline / Category <span class="required">*</span></label>
+              <select id="paper-category" class="form-control" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="paper-year">Publication Year <span class="required">*</span></label>
+              <input type="number" id="paper-year" class="form-control" placeholder="2025" min="1990" max="2030" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="paper-keywords">Keywords (Comma separated) <span class="required">*</span></label>
+            <input type="text" id="paper-keywords" class="form-control" placeholder="e.g. Machine Learning, Edge Computing, CNN, IoT" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="paper-type">Publication Type <span class="required">*</span></label>
+              <select id="paper-type" class="form-control" required>
+                <option value="Conference">Conference</option>
+                <option value="Journal">Journal</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Review Paper">Review Paper</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="paper-journal">Journal / Conference Name</label>
+              <input type="text" id="paper-journal" class="form-control" placeholder="e.g. IEEE Transactions on Computers">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="paper-doi">Digital Object Identifier (DOI)</label>
+            <input type="text" id="paper-doi" class="form-control" placeholder="e.g. 10.1109/ICSE.2025.1092">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="paper-methodology">Methodology</label>
+              <textarea id="paper-methodology" class="form-control" rows="2" placeholder="e.g. Quantitative experimental evaluation on testbed..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="paper-technologies">Technologies Used</label>
+              <textarea id="paper-technologies" class="form-control" rows="2" placeholder="e.g. PyTorch, CUDA, ROS2, Python, Docker..."></textarea>
+            </div>
+          </div>
+
+          <!-- AUTHORS SECTION -->
+          <hr style="border: none; border-top: 1px solid var(--slate-200); margin: 2rem 0;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+            <div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy-950); margin-bottom: 0.25rem;">
+                2. Authors &amp; Contributors
+              </h2>
+              <p style="font-size: 0.85rem; color: var(--navy-600);">Register primary and secondary contributing scholars.</p>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-add-author">
+              + Add Author
+            </button>
+          </div>
+
+          <div id="authors-container">
+            <!-- Author rows populated by papers.js -->
+          </div>
+
+          <!-- FILE UPLOAD DROPZONE -->
+          <hr style="border: none; border-top: 1px solid var(--slate-200); margin: 2rem 0;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--navy-950); margin-bottom: 0.5rem;">
+            3. Manuscript File (PDF)
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--navy-600); margin-bottom: 1rem;">
+            Select a research paper manuscript for digital archiving.
+          </p>
+
+          <input type="file" id="paper-file-input" accept=".pdf" style="display: none;">
+          <div class="file-dropzone" id="file-dropzone">
+            <svg style="width: 44px; height: 44px; color: var(--indigo-500); margin-bottom: 0.5rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <div style="font-weight: 600; color: var(--navy-900); font-size: 0.95rem;">
+              Click here to upload your PDF manuscript
+            </div>
+            <div style="font-size: 0.8rem; color: var(--slate-400); margin-top: 0.25rem;">
+              Maximum simulated upload size: 15 MB &bull; Accepted format: .PDF only
+            </div>
+          </div>
+
+          <div id="dropzone-file-preview" class="dropzone-file-preview" style="display: none;">
+            <!-- Rendered when file chosen -->
+          </div>
+
+          <div class="form-hint" style="margin-top: 0.75rem;">
+            Note: For this browser-only demonstration, manuscript metadata and simulated PDF downloads are maintained within LocalStorage.
+          </div>
+
+          <!-- SUBMIT ACTIONS -->
+          <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+            <a href="papers.html" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary" id="btn-submit-paper">
+              Submit Manuscript for Review
+            </button>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/papers.js"></script>
+  <script>
+    // Initialize default author row if none exists
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('authors-container');
+      const params = new URLSearchParams(window.location.search);
+      if (!params.get('id') && container && container.children.length === 0) {
+        const u = getCurrentUser();
+        addAuthorRow(u ? u.name : '', u ? u.institution : 'Apex Institute of Technology', u ? u.email : '');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Research Paper Management System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+      background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
+                  var(--slate-50);
+    }
+    .auth-card {
+      background-color: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-xl);
+      max-width: 520px;
+      width: 100%;
+      padding: 2.5rem 2rem;
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body class="auth-page">
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <a href="index.html" class="brand-logo" style="justify-content: center; margin-bottom: 1rem;">
+        <div class="logo-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+        </div>
+        <span>RPMS</span>
+      </a>
+      <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--navy-950);">Create Academic Account</h2>
+      <p style="font-size: 0.875rem; color: var(--navy-600); margin-top: 0.25rem;">Join as a student researcher or faculty reviewer</p>
+    </div>
+
+    <form id="register-form">
+      <div class="form-group">
+        <label class="form-label" for="reg-name">Full Name <span class="required">*</span></label>
+        <input type="text" id="reg-name" class="form-control" placeholder="e.g. Tanvi Deshpande" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-email">Email Address <span class="required">*</span></label>
+        <input type="email" id="reg-email" class="form-control" placeholder="name@institution.edu" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-role">Academic Role <span class="required">*</span></label>
+        <select id="reg-role" class="form-control" required>
+          <option value="">-- Select Your Role --</option>
+          <option value="Student">Student / Researcher</option>
+          <option value="Faculty">Faculty / Reviewer</option>
+        </select>
+        <div class="form-hint">Note: System Administrator role requires administrative invitation.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-password">Password <span class="required">*</span></label>
+        <div class="password-toggle-group">
+          <input type="password" id="reg-password" class="form-control" placeholder="At least 6 characters" required>
+          <button type="button" class="toggle-password-btn" id="toggle-reg-pass" title="Toggle password">
+            <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="reg-confirm-password">Confirm Password <span class="required">*</span></label>
+        <input type="password" id="reg-confirm-password" class="form-control" placeholder="Re-enter password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" id="reg-submit-btn">
+        Create Account
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--navy-600);">
+      Already have an account? <a href="login.html" class="text-semibold">Log in here</a>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    redirectIfLoggedIn();
+
+    const toggleBtn = document.getElementById('toggle-reg-pass');
+    const passInput = document.getElementById('reg-password');
+    toggleBtn.addEventListener('click', () => {
+      passInput.type = passInput.type === 'password' ? 'text' : 'password';
+    });
+
+    const form = document.getElementById('register-form');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('reg-name').value;
+      const email = document.getElementById('reg-email').value;
+      const role = document.getElementById('reg-role').value;
+      const password = document.getElementById('reg-password').value;
+      const confirmPassword = document.getElementById('reg-confirm-password').value;
+
+      const res = register({ name, email, role, password, confirmPassword });
+      if (res.success) {
+        showToast(res.message, 'success');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1200);
+      } else {
+        showToast(res.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research Paper Library - RPMS</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="dashboard-sidebar">
+      <div class="sidebar-header">
+        <a href="dashboard.html" class="sidebar-brand">
+          <div class="logo-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
+          <div>
+            <span>RPMS</span>
+            <span class="sidebar-brand-sub">Academic Portal</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="sidebar-nav-wrapper">
+        <div class="nav-section-title">Core Navigation</div>
+        <nav class="sidebar-nav">
+          <a href="dashboard.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="papers.html" class="active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Research Papers</span>
+          </a>
+          <a href="add-paper.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <span>Add Paper</span>
+          </a>
+          <a href="my-papers.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>My Papers</span>
+          </a>
+          <a href="researchers.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Researchers</span>
+          </a>
+          <a href="categories.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span>Categories</span>
+          </a>
+          <a href="reviews.html" class="faculty-only">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <span>Reviews</span>
+          </a>
+          <a href="profile.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Profile</span>
+          </a>
+        </nav>
+
+        <div class="nav-section-title admin-only">Administration</div>
+        <nav class="sidebar-nav admin-only">
+          <a href="admin.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Admin Console</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="user-avatar-circle current-user-avatar">AS</div>
+          <div class="user-snippet-details">
+            <div class="user-snippet-name current-user-name">Aarav Sharma</div>
+            <div class="user-snippet-role"><span class="current-user-role badge">Student</span></div>
+          </div>
+        </div>
+        <button class="sidebar-logout-btn" onclick="logout()">
+          <svg style="width: 15px; height: 15px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN VIEW -->
+    <div class="main-wrapper">
+      <header class="top-header">
+        <div class="top-header-left">
+          <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="Toggle Sidebar">☰</button>
+          <h1 class="page-title">Research Paper Library</h1>
+        </div>
+        <div class="top-header-right">
+          <a href="add-paper.html" class="btn btn-primary btn-sm">
+            + Submit Paper
+          </a>
+        </div>
+      </header>
+
+      <main class="content-body">
+        <!-- SEARCH & MULTI-FILTER TOOLBAR -->
+        <div class="toolbar-section">
+          <div class="toolbar-search-row">
+            <div class="search-input-wrapper">
+              <svg class="search-icon-pos" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="search-papers" class="form-control search-input" placeholder="Search by paper title, author, keywords, or DOI...">
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-filters">
+              Clear Filters
+            </button>
+          </div>
+
+          <div class="filter-grid">
+            <div>
+              <label class="form-label" style="font-size: 0.775rem;">Category</label>
+              <select id="filter-category" class="form-control" style="font-size: 0.85rem; padding: 0.5rem 0.75rem;">
+                <option value="">All Categories</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label" style="font-size: 0.775rem;">Publication Year</label>
+              <select id="filter-year" class="form-control" style="font-size: 0.85rem; padding: 0.5rem 0.75rem;">
+                <option value="">All Years</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label" style="font-size: 0.775rem;">Status</label>
+              <select id="filter-status" class="form-control" style="font-size: 0.85rem; padding: 0.5rem 0.75rem;">
+                <option value="">All Statuses</option>
+                <option value="Approved">Approved</option>
+                <option value="Under Review">Under Review</option>
+                <option value="Pending">Pending</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label" style="font-size: 0.775rem;">Publication Type</label>
+              <select id="filter-type" class="form-control" style="font-size: 0.85rem; padding: 0.5rem 0.75rem;">
+                <option value="">All Types</option>
+                <option value="Conference">Conference</option>
+                <option value="Journal">Journal</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Review Paper">Review Paper</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label" style="font-size: 0.775rem;">Sort Order</label>
+              <select id="sort-papers" class="form-control" style="font-size: 0.85rem; padding: 0.5rem 0.75rem;">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="title-asc">Title: A to Z</option>
+                <option value="title-desc">Title: Z to A</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEARCH RESULT COUNT FEEDBACK -->
+        <div class="results-info-bar" id="search-results-info">
+          Loading research papers...
+        </div>
+
+        <!-- PAPERS GRID -->
+        <div class="papers-grid" id="papers-grid-container">
+          <!-- Populated dynamically by papers.js -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/papers.js"></script>
+</body>
+</html>
