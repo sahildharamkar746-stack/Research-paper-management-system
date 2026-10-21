@@ -56,6 +56,8 @@ try {
   const context = await browser.newContext();
   await context.addInitScript({ content: 'window.RPMS_API_BASE_URL = ' + JSON.stringify(apiUrl) + ';' });
   const page = await context.newPage();
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
 
   await page.goto(webUrl + '/register.html');
   await page.locator('#reg-name').fill('Browser Test Student');
@@ -91,16 +93,22 @@ try {
   await page.goto(webUrl + '/reviews.html');
   await page.waitForSelector('#review-papers-table-body button', { timeout: 10000 });
   await page.locator('#review-papers-table-body button').first().click();
+  if (!await page.locator('#review-modal').isVisible()) throw new Error('Review modal did not open.');
   await page.locator('#modal-review-status').selectOption('Approved');
   await page.locator('#modal-review-feedback').fill('Browser E2E review passed.');
   await page.locator('#submit-review-form button[type="submit"]').click();
+  await page.waitForTimeout(700);
+  const facultyToken = await page.evaluate(() => localStorage.getItem('rpms_api_token'));
+  const reviewResponse = await fetch(apiUrl + '/api/reviews', { headers: { Authorization: 'Bearer ' + facultyToken } });
+  const reviewPayload = await reviewResponse.json();
+  if (!reviewPayload.reviews.some(r => r.comments === 'Browser E2E review passed.')) throw new Error('Review was not persisted. API reviews: ' + JSON.stringify(reviewPayload) + '; toasts: ' + await page.locator('.toast-message').allInnerTexts() + '; page errors: ' + JSON.stringify(pageErrors));
   for (let i = 0; i < 20; i++) {
     response = await fetch(apiUrl + '/api/papers');
     payload = await response.json();
     if (payload.papers.some(p => p.title === 'Browser E2E Research Paper' && p.status === 'Approved')) break;
     await new Promise(resolve => setTimeout(resolve, 200));
   }
-  if (!payload.papers.some(p => p.title === 'Browser E2E Research Paper' && p.status === 'Approved')) throw new Error('Faculty review did not update the paper status.');
+  if (!payload.papers.some(p => p.title === 'Browser E2E Research Paper' && p.status === 'Approved')) throw new Error('Faculty review did not update the paper status. Current API papers: ' + JSON.stringify(payload.papers) + '; API reviews: ' + JSON.stringify(reviewPayload) + '; page errors: ' + JSON.stringify(pageErrors));
 
   await logout(page);
   await login(page, 'admin-e2e@example.test', 'admin-e2e-pass-123');
