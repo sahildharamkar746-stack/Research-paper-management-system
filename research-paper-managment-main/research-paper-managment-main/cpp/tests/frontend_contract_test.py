@@ -34,9 +34,9 @@ require("admin123" not in login and "faculty123" not in login and "student123" n
 require(not re.search(r"password:\s*'[^']+'", data), "Plaintext passwords must not ship in frontend data")
 if len(sys.argv) > 1:
     node = sys.argv[1]
-    for file in (ROOT / "js/api.js", ROOT / "js/auth.js"):
+    for file in (ROOT / "js/api.js", ROOT / "js/auth.js", ROOT / "js/data.js", ROOT / "js/papers.js", ROOT / "js/reviews.js", ROOT / "js/admin.js", ROOT / "js/dashboard.js", ROOT / "js/main.js"):
         subprocess.run([node, "--check", str(file)], check=True, timeout=10)
-    for page in (ROOT / "login.html", ROOT / "register.html"):
+    for page in (ROOT / "add-paper.html", ROOT / "admin.html", ROOT / "categories.html", ROOT / "dashboard.html", ROOT / "index.html", ROOT / "login.html", ROOT / "my-papers.html", ROOT / "paper-details.html", ROOT / "papers.html", ROOT / "profile.html", ROOT / "register.html", ROOT / "researchers.html", ROOT / "reviews.html"):
         for index, script in enumerate(re.findall(r"<script>(.*?)</script>", page.read_text(encoding="utf-8"), re.I | re.S)):
             temp = Path(__file__).with_name("." + page.stem + "_inline_" + str(index) + ".js")
             try:

@@ -71,6 +71,10 @@ try:
  admin_id=next(u["id"] for u in users["users"] if u["email"]=="admin@example.test")
  req("POST","/api/categories",{"name":"Forbidden Category"},st,403)
  req("POST","/api/categories",{"name":"Temporary Category"},at,201)
+ req("PATCH","/api/categories",{"oldName":"Computer Networks","newName":"Networks Test"},at,200)
+ _,renamed_papers=req("GET","/api/papers",expected=200)
+ assert renamed_papers["papers"][0]["category"]=="Networks Test"
+ req("PATCH","/api/categories",{"oldName":"Networks Test","newName":"Computer Networks"},at,200)
  req("PATCH","/api/categories",{"oldName":"Temporary Category","newName":"Renamed Category"},at,200)
  req("DELETE","/api/categories",{"name":"Renamed Category"},at,200)
  req("DELETE",f"/api/papers/{pid}",token=st,expected=403)

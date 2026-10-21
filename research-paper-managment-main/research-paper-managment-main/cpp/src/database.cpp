@@ -318,10 +318,18 @@ bool Database::addCategory(const std::string& name) {
 }
 bool Database::renameCategory(const std::string& oldName, const std::string& newName) {
     if (oldName.empty() || newName.empty()) return false;
-    Statement s(db_, "UPDATE categories SET name=? WHERE name=? COLLATE NOCASE;");
-    s.text(1, newName); s.text(2, oldName);
-    if (!s.stepDone()) return false;
-    return sqlite3_changes(db_) > 0;
+    execute("BEGIN;");
+    try {
+        Statement category(db_, "UPDATE categories SET name=? WHERE name=? COLLATE NOCASE;");
+        category.text(1, newName); category.text(2, oldName);
+        if (!category.stepDone()) throw std::runtime_error(sqlite3_errmsg(db_));
+        if (sqlite3_changes(db_) == 0) { execute("ROLLBACK;"); return false; }
+        Statement papers(db_, "UPDATE papers SET category=? WHERE category=? COLLATE NOCASE;");
+        papers.text(1, newName); papers.text(2, oldName);
+        if (!papers.stepDone()) throw std::runtime_error(sqlite3_errmsg(db_));
+        execute("COMMIT;");
+        return true;
+    } catch (...) { execute("ROLLBACK;"); throw; }
 }
 bool Database::deleteCategory(const std::string& name) {
     if (name.empty()) return false;
