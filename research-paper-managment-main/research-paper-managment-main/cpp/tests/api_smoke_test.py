@@ -15,7 +15,10 @@ def req(method,path,body=None,token=None,expected=None,origin=None):
  try:
   with urllib.request.urlopen(request,timeout=3) as r: status,payload=r.status,r.read().decode()
  except urllib.error.HTTPError as e: status,payload=e.code,e.read().decode()
- result=json.loads(payload) if payload else {}
+ if payload:
+  try: result=json.loads(payload)
+  except json.JSONDecodeError: result={"message":payload}
+ else: result={}
  if expected is not None and status!=expected: raise AssertionError(f"{method} {path}: expected {expected}, got {status}: {result}")
  return status,result
 try:
