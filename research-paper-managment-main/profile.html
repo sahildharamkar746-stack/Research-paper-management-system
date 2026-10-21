@@ -174,11 +174,13 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/data.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.rpmsDataReady;
       const user = requireAuth();
       if (!user) return;
 
@@ -196,7 +198,7 @@
       document.getElementById('prof-bio').value = user.bio || '';
 
       // Form submission
-      document.getElementById('edit-profile-form').addEventListener('submit', (e) => {
+      document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const updated = {
           ...user,
@@ -208,7 +210,7 @@
           bio: document.getElementById('prof-bio').value.trim()
         };
 
-        updateUser(updated);
+        await updateUser(updated);
         addActivity(`${updated.name} updated profile information.`, 'user');
         renderUserUI();
         showToast('Profile updated successfully!', 'success');
