@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScholarTrack — Research Paper Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- AUTHENTICATION SCREEN OVERLAY (Shown by default for unauthenticated users) -->
+    <div id="auth-screen" class="auth-wrapper">
+        <div class="auth-backdrop"></div>
+        <div class="auth-card">
+            <!-- Brand / Header -->
+            <div class="auth-header">
+                <div class="brand-icon auth-logo">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h1 class="auth-title">ScholarTrack</h1>
+                <p class="auth-subtitle">Research Paper Management System</p>
+                <div class="auth-badge">
+                    <span class="pulse-dot"></span> Powered by Native C++17 & SQLite
+                </div>
+            </div>
+
+            <!-- Auth Alert Box -->
+            <div id="auth-alert" class="auth-alert" style="display: none;"></div>
+
+            <!-- LOGIN FORM -->
+            <form id="login-form" class="auth-form" novalidate>
+                <div class="auth-form-title">
+                    <h2>Sign In</h2>
+                    <span>Access your academic research library</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-email" class="required-label">Academic Email</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-envelope input-icon"></i>
+                        <input type="email" id="login-email" class="form-input" placeholder="name@university.edu" required autocomplete="email">
+                    </div>
+                    <span class="field-error" id="err-login-email"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password" class="required-label">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
+                        <button type="button" class="btn-toggle-pwd" id="toggle-login-pwd" title="Show or hide password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                    <span class="field-error" id="err-login-password"></span>
+                </div>
+
+                <div class="auth-options">
+                    <label class="remember-label">
+                        <input type="checkbox" id="login-remember">
+                        <span>Remember me for 30 days</span>
+                    </label>
+                    <span class="demo-credential-pill" id="fill-demo-btn" title="Click to autofill demo account">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Use Demo User
+                    </span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" id="btn-login-submit">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Sign In to Dashboard</span>
+                </button>
+
+                <div class="auth-switch">
+                    <span>Don't have an account?</span>
+                    <a href="#" id="link-show-register">Create Account</a>
+                </div>
+            </form>
+
+            <!-- REGISTRATION FORM -->
+            <form id="register-form" class="auth-form" style="display: none;" novalidate>
+                <div class="auth-form-title">
+                    <h2>Create Account</h2>
+                    <span>Join the ScholarTrack academic network</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-name" class="required-label">Full Name</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-user input-icon"></i>
+                        <input type="text" id="register-name" class="form-input" placeholder="e.g. Dr. Jane Doe" required autocomplete="name">
+                    </div>
+                    <span class="field-error" id="err-register-name"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-email" class="required-label">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-envelope input-icon"></i>
+                        <input type="email" id="register-email" class="form-input" placeholder="name@university.edu" required autocomplete="email">
+                    </div>
+                    <span class="field-error" id="err-register-email"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-password" class="required-label">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" id="register-password" class="form-input" placeholder="At least 6 characters" required autocomplete="new-password">
+                        <button type="button" class="btn-toggle-pwd" id="toggle-register-pwd" title="Show or hide password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                    <span class="field-error" id="err-register-password"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-confirm-password" class="required-label">Confirm Password</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-shield-halved input-icon"></i>
+                        <input type="password" id="register-confirm-password" class="form-input" placeholder="Re-enter password" required autocomplete="new-password">
+                    </div>
+                    <span class="field-error" id="err-register-confirm"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" id="btn-register-submit">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Register & Open Dashboard</span>
+                </button>
+
+                <div class="auth-switch">
+                    <span>Already have an account?</span>
+                    <a href="#" id="link-show-login">Sign In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PROTECTED DASHBOARD LAYOUT (Shown only after authenticated) -->
+    <div class="app-layout" id="dashboard-app" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>ScholarTrack</h2>
+                    <span>Research System</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="#dashboard" class="menu-item active" data-nav="dashboard">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#papers" class="menu-item" data-nav="papers">
+                    <i class="fa-solid fa-earth-americas"></i>
+                    <span>All Research Papers</span>
+                    <span class="badge" id="menu-paper-count">0</span>
+                </a>
+                <a href="#my-papers" class="menu-item" data-nav="my-papers">
+                    <i class="fa-solid fa-user-pen"></i>
+                    <span>My Publications</span>
+                </a>
+                <a href="#favorites" class="menu-item" data-nav="favorites">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Favorites</span>
+                    <span class="badge badge-accent" id="menu-fav-count">0</span>
+                </a>
+                <a href="#categories" class="menu-item" data-nav="categories">
+                    <i class="fa-solid fa-folder-tree"></i>
+                    <span>Categories</span>
+                </a>
+                <a href="#reading-list" class="menu-item" data-nav="reading-list">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Reading List</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-backend-info">
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span class="status-label">C++ Engine: Online</span>
+                </div>
+                <div class="backend-meta">
+                    <small>Native C++17 & SQLite Storage</small>
+                    <small id="auth-status-meta">Session: Authenticated</small>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-wrapper">
+            <!-- Top Header -->
+            <header class="top-nav">
+                <div class="nav-left">
+                    <button class="icon-btn mobile-menu-toggle" id="sidebar-toggle" title="Toggle Navigation">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="global-search" placeholder="Search by paper title, author, keyword, DOI..." autocomplete="off">
+                        <button class="clear-search-btn" id="clear-search" style="display:none;">&times;</button>
+                    </div>
+                </div>
+
+                <div class="nav-actions">
+                    <button class="btn btn-primary" id="btn-open-add-modal">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add Paper</span>
+                    </button>
+                    <button class="btn btn-secondary" id="btn-export-csv" title="Export Academic Data">
+                        <i class="fa-solid fa-file-arrow-down"></i>
+                        <span>Export CSV</span>
+                    </button>
+
+                    <!-- User Profile & Logout -->
+                    <div class="user-profile-menu">
+                        <div class="user-avatar" id="user-avatar" title="Logged in Researcher">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <div class="user-details-top">
+                            <span class="user-name" id="top-user-name">Researcher</span>
+                            <span class="user-role" id="top-user-email">email@domain.com</span>
+                        </div>
+                        <button class="btn btn-outline btn-logout" id="btn-logout" title="Log out from session">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span class="logout-text">Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Notification Toast Container -->
+            <div id="toast-container" class="toast-container"></div>
+
+            <div class="content-scroll">
+                <!-- HERO / STATS DASHBOARD -->
+                <section class="section-container" id="dashboard-section">
+                    <div class="dashboard-header">
+                        <div>
+                            <h1 class="page-title">Research Paper Management System</h1>
+                            <p class="page-subtitle">Welcome back, <strong id="hero-user-name">Researcher</strong>. Here is your academic publication repository overview.</p>
+                        </div>
+                        <div class="quick-timestamp" id="live-clock">
+                            <i class="fa-regular fa-clock"></i> <span id="clock-display"></span>
+                        </div>
+                    </div>
+
+                    <!-- Metric Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon icon-blue">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Papers</span>
+                                <h3 class="stat-value" id="stat-total-papers">0</h3>
+                                <span class="stat-hint">Active publications</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon icon-purple">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Contributing Authors</span>
+                                <h3 class="stat-value" id="stat-total-authors">0</h3>
+                                <span class="stat-hint">Unique researchers</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon icon-emerald">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Research Fields</span>
+                                <h3 class="stat-value" id="stat-total-categories">6</h3>
+                                <span class="stat-hint">CS & Engineering fields</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon icon-amber">
+                                <i class="fa-solid fa-bookmark"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Reading Queue</span>
+                                <h3 class="stat-value" id="stat-reading-queue">0</h3>
+                                <span class="stat-hint"><span id="stat-completed">0</span> Completed</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FILTER & CONTROLS TOOLBAR -->
+                <section class="section-container">
+                    <div class="filter-card">
+                        <div class="filter-header">
+                            <div class="filter-tabs">
+                                <button class="tab-btn active" data-filter-scope="all" data-filter-reading="All">All Publications</button>
+                                <button class="tab-btn" data-filter-scope="mine" data-filter-reading="All">My Papers Only</button>
+                                <button class="tab-btn" data-filter-reading="To Read">To Read</button>
+                                <button class="tab-btn" data-filter-reading="Reading">In Progress</button>
+                                <button class="tab-btn" data-filter-reading="Completed">Completed</button>
+                                <button class="tab-btn" data-filter-favorite="true">
+                                    <i class="fa-solid fa-star" style="color: #f59e0b; margin-right: 4px;"></i> Favorites
+                                </button>
+                            </div>
+                            <div class="results-count" id="results-count-text">
+                                Showing 0 papers
+                            </div>
+                        </div>
+
+                        <div class="filter-controls-row">
+                            <div class="control-group">
+                                <label><i class="fa-solid fa-folder"></i> Category</label>
+                                <select id="filter-category" class="form-select">
+                                    <option value="All">All Categories</option>
+                                    <option value="Artificial Intelligence">Artificial Intelligence</option>
+                                    <option value="Machine Learning">Machine Learning</option>
+                                    <option value="Data Science">Data Science</option>
+                                    <option value="Cybersecurity">Cybersecurity</option>
+                                    <option value="Computer Networks">Computer Networks</option>
+                                    <option value="Software Engineering">Software Engineering</option>
+                                </select>
+                            </div>
+
+                            <div class="control-group">
+                                <label><i class="fa-solid fa-certificate"></i> Publication Status</label>
+                                <select id="filter-status" class="form-select">
+                                    <option value="All">All Statuses</option>
+                                    <option value="Published">Published</option>
+                                    <option value="Accepted">Accepted</option>
+                                    <option value="Under Review">Under Review</option>
+                                    <option value="Draft">Draft</option>
+                                </select>
+                            </div>
+
+                            <div class="control-group">
+                                <label><i class="fa-solid fa-calendar"></i> Year</label>
+                                <select id="filter-year" class="form-select">
+                                    <option value="0">All Years</option>
+                                </select>
+                            </div>
+
+                            <div class="control-group">
+                                <label><i class="fa-solid fa-arrow-down-short-wide"></i> Sort By</label>
+                                <select id="sort-select" class="form-select">
+                                    <option value="date_desc">Recently Added</option>
+                                    <option value="year_desc">Year: Newest First</option>
+                                    <option value="year_asc">Year: Oldest First</option>
+                                    <option value="title_asc">Title: A to Z</option>
+                                    <option value="title_desc">Title: Z to A</option>
+                                </select>
+                            </div>
+
+                            <div class="control-group reset-group">
+                                <button class="btn btn-outline" id="btn-reset-filters" title="Reset all search filters">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PAPERS LIST / GRID -->
+                <section class="section-container" id="papers-container">
+                    <div class="paper-grid" id="paper-list">
+                        <!-- Dynamically populated via JS -->
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state" id="empty-state" style="display: none;">
+                        <div class="empty-icon">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <h3>No research papers match your criteria</h3>
+                        <p>Try clearing your search query or adjusting your category/status filters.</p>
+                        <button class="btn btn-primary" onclick="resetAllFilters()">Reset All Filters</button>
+                    </div>
+                </section>
+
+                <!-- FOOTER -->
+                <footer class="app-footer">
+                    <div class="footer-content">
+                        <div class="footer-brand">
+                            <div class="brand-icon small">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <span>Research Paper Management System &bull; College Mini-Project</span>
+                        </div>
+                        <div class="footer-badges">
+                            <span class="tech-tag tag-cpp"><i class="fa-brands fa-cuttlefish"></i> C++17 Backend</span>
+                            <span class="tech-tag tag-sqlite"><i class="fa-solid fa-database"></i> SQLite3</span>
+                            <span class="tech-tag tag-python"><i class="fa-brands fa-python"></i> Python Tools</span>
+                            <span class="tech-tag tag-web"><i class="fa-solid fa-lock"></i> PBKDF2 Sessions</span>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: ADD / EDIT RESEARCH PAPER -->
+    <div class="modal-overlay" id="paper-modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <div class="modal-icon" id="modal-icon">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                    </div>
+                    <div>
+                        <h2 id="modal-title">Add New Research Paper</h2>
+                        <span class="modal-subtitle">Save academic publications directly to the persistent C++ backend</span>
+                    </div>
+                </div>
+                <button class="modal-close" id="modal-close-btn">&times;</button>
+            </div>
+
+            <form id="paper-form" novalidate>
+                <input type="hidden" id="paper-id" value="">
+
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group col-12">
+                            <label class="required-label">Paper Title</label>
+                            <input type="text" id="paper-title" class="form-input" placeholder="e.g. Attention Is All You Need" required>
+                            <span class="field-error" id="err-title"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-12">
+                            <label class="required-label">Authors</label>
+                            <input type="text" id="paper-authors" class="form-input" placeholder="e.g. Ashish Vaswani, Noam Shazeer, Niki Parmar" required>
+                            <span class="field-error" id="err-authors"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label class="required-label">Category / Domain</label>
+                            <select id="paper-category" class="form-select" required>
+                                <option value="Artificial Intelligence">Artificial Intelligence</option>
+                                <option value="Machine Learning">Machine Learning</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="Cybersecurity">Cybersecurity</option>
+                                <option value="Computer Networks">Computer Networks</option>
+                                <option value="Software Engineering">Software Engineering</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-6">
+                            <label class="required-label">Publication Year</label>
+                            <input type="number" id="paper-year" class="form-input" min="1950" max="2030" value="2024" required>
+                            <span class="field-error" id="err-year"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-12">
+                            <label>Conference or Journal Venue</label>
+                            <input type="text" id="paper-venue" class="form-input" placeholder="e.g. NeurIPS, IEEE CVPR, ACM TOSEM">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label>Publication Status</label>
+                            <select id="paper-status" class="form-select">
+                                <option value="Published">Published</option>
+                                <option value="Accepted">Accepted</option>
+                                <option value="Under Review">Under Review</option>
+                                <option value="Draft">Draft</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-6">
+                            <label>Reading Status</label>
+                            <select id="paper-reading-status" class="form-select">
+                                <option value="To Read">To Read</option>
+                                <option value="Reading">Reading</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label>DOI (Digital Object Identifier)</label>
+                            <input type="text" id="paper-doi" class="form-input" placeholder="e.g. 10.48550/arXiv.1706.03762">
+                        </div>
+                        <div class="form-group col-6">
+                            <label>Paper URL / PDF Link</label>
+                            <input type="url" id="paper-url" class="form-input" placeholder="https://arxiv.org/abs/...">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-12">
+                            <label>Keywords (Comma-separated)</label>
+                            <input type="text" id="paper-keywords" class="form-input" placeholder="Deep Learning, NLP, Attention, Transformer">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-12">
+                            <label>Abstract</label>
+                            <textarea id="paper-abstract" class="form-textarea" rows="4" placeholder="Enter full paper summary or abstract..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="modal-cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-paper">
+                        <i class="fa-solid fa-check"></i> Save Paper Record
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: VIEW PAPER DETAILS -->
+    <div class="modal-overlay" id="paper-detail-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <div class="modal-icon">
+                        <i class="fa-solid fa-newspaper"></i>
+                    </div>
+                    <div>
+                        <h2>Publication Details</h2>
+                        <span class="modal-subtitle">Full academic metadata and links</span>
+                    </div>
+                </div>
+                <button class="modal-close" id="detail-close-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="detail-modal-body">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="detail-close-footer-btn">Close</button>
+                <button class="btn btn-secondary" id="detail-edit-btn">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit Details
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRMATION DIALOG -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <div class="modal-icon icon-danger">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h2>Delete Paper</h2>
+                        <span class="modal-subtitle">Permanent Action</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Are you sure you want to permanently delete this paper? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="confirm-cancel-btn">Cancel</button>
+                <button class="btn btn-danger" id="confirm-ok-btn">
+                    <i class="fa-solid fa-trash-can"></i> Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vercel Static Fallback Simulator (Active only when running on Vercel) -->
+    <script src="vercel_fallback.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
